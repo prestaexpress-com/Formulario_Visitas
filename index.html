@@ -1,0 +1,2695 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Visitas</title>
+    <style>
+        :root {
+            --orange-primary: #ff6500;
+            --orange-secondary: #ff7a1a;
+            --white: #ffffff;
+            --gray-light: #f8f9fa;
+            --gray-border: #e9ecef;
+            --gray-text: #6c757d;
+            --gray-dark: #495057;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-hover: 0 4px 16px rgba(0,0,0,0.15);
+            --border-radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--gray-light) 0%, var(--white) 100%);
+            min-height: 100vh;
+            color: var(--gray-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 16px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 600px;
+                padding: 24px;
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 24px;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            color: var(--orange-primary);
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: var(--gray-text);
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 80px;
+            flex: 1;
+            position: relative;
+            padding: 0 8px;
+        }
+
+        .progress-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 16px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background: var(--gray-border);
+            z-index: 1;
+        }
+
+        .progress-step.active:not(:last-child)::after,
+        .progress-step.completed:not(:last-child)::after {
+            background: var(--orange-primary);
+        }
+
+        .step-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--gray-border);
+            color: var(--gray-text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 12px;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 2;
+            transition: var(--transition);
+        }
+
+        .progress-step.active .step-icon {
+            background: var(--orange-primary);
+            color: var(--white);
+            transform: scale(1.1);
+        }
+
+        .progress-step.completed .step-icon {
+            background: var(--orange-secondary);
+            color: var(--white);
+        }
+
+        .step-label {
+            font-size: 11px;
+            text-align: center;
+            color: var(--gray-text);
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        .progress-step.active .step-label {
+            color: var(--orange-primary);
+            font-weight: 600;
+        }
+
+        .progress-fill {
+            height: 4px;
+            background: var(--gray-border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--orange-primary), var(--orange-secondary));
+            border-radius: 2px;
+            transition: width 0.5s ease;
+            width: 16.66%;
+        }
+
+        .form-container {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        .form-step {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .form-step.active {
+            display: block !important;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-title {
+            color: var(--orange-primary);
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 480px) {
+            .form-grid.two-columns {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--gray-dark);
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        label .required {
+            color: var(--orange-primary);
+            margin-left: 4px;
+        }
+
+        input, select, textarea {
+            padding: 14px 16px;
+            border: 2px solid var(--gray-border);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            background: var(--white);
+            transition: var(--transition);
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--orange-primary);
+            box-shadow: 0 0 0 3px rgba(255, 101, 0, 0.1);
+        }
+
+        input.error, select.error, textarea.error {
+            border-color: #dc3545;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 48px;
+        }
+
+        .radio-group, .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .radio-item, .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            border: 2px solid var(--gray-border);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--white);
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .radio-item:hover, .checkbox-item:hover {
+            border-color: var(--orange-secondary);
+            background: rgba(255, 101, 0, 0.05);
+        }
+
+        .radio-item.selected, .checkbox-item.selected {
+            border-color: var(--orange-primary);
+            background: rgba(255, 101, 0, 0.1);
+            color: var(--orange-primary);
+            font-weight: 600;
+        }
+
+        .radio-item input, .checkbox-item input {
+            display: none;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .canvas-container {
+            border: 2px dashed var(--gray-border);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            text-align: center;
+            background: var(--gray-light);
+            margin-bottom: 16px;
+        }
+
+        .canvas-container.active {
+            border-color: var(--orange-primary);
+            background: rgba(255, 101, 0, 0.05);
+        }
+
+        canvas {
+            border: 1px solid var(--gray-border);
+            border-radius: var(--border-radius);
+            background: var(--white);
+            max-width: 100%;
+            height: auto;
+            cursor: crosshair;
+            touch-action: none;
+        }
+
+        .canvas-tools {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 16px 0;
+            flex-wrap: wrap;
+        }
+
+        .tool-btn {
+            padding: 10px 16px;
+            background: var(--white);
+            border: 2px solid var(--gray-border);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tool-btn:hover {
+            border-color: var(--orange-primary);
+            color: var(--orange-primary);
+        }
+
+        .tool-btn.active {
+            background: var(--orange-primary);
+            border-color: var(--orange-primary);
+            color: var(--white);
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 20px;
+            border: 2px dashed var(--gray-border);
+            border-radius: var(--border-radius);
+            background: var(--gray-light);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            min-height: 80px;
+        }
+
+        .file-label:hover {
+            border-color: var(--orange-primary);
+            background: rgba(255, 101, 0, 0.05);
+        }
+
+        .photo-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .photo-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-remove {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 24px;
+            height: 24px;
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 48px;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: var(--orange-primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--orange-secondary);
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--orange-primary);
+            border: 2px solid var(--orange-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--orange-primary);
+            color: var(--white);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: var(--white);
+            border: 2px solid #dc3545;
+            min-width: auto;
+            padding: 8px 12px;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            border-color: #c82333;
+            transform: translateY(-1px);
+        }
+
+        /* Estilos para campos dinámicos */
+        .dynamic-item {
+            margin-bottom: 12px;
+            padding: 16px;
+            background: var(--gray-light);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--gray-border);
+        }
+
+        .dynamic-item .form-grid {
+            margin-bottom: 0;
+        }
+
+        .dynamic-item input,
+        .dynamic-item select,
+        .dynamic-item textarea {
+            margin-bottom: 0;
+        }
+
+        .dynamic-buttons {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .dynamic-buttons input {
+            flex: 1;
+        }
+
+        .dynamic-section {
+            margin-bottom: 24px;
+        }
+
+        .dynamic-section h4 {
+            color: var(--orange-primary);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            border-bottom: 2px solid var(--orange-primary);
+            padding-bottom: 8px;
+        }
+
+        /* Mejorar el contenedor de inventario */
+        .inventario-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 60px;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--gray-dark);
+        }
+
+        .inventario-item .form-grid {
+            gap: 8px;
+        }
+
+        /* Asegurar que todo esté contenido */
+        .form-container {
+            overflow: hidden;
+            max-width: 100%;
+        }
+
+        .form-step {
+            max-width: 100%;
+            overflow: hidden;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        /* Mejorar responsividad */
+        @media (max-width: 768px) {
+            .form-grid.two-columns {
+                grid-template-columns: 1fr;
+            }
+            
+            .inventario-header {
+                display: none;
+            }
+            
+            .inventario-item .form-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .inventario-item input {
+                border: 1px solid var(--gray-border);
+                margin-bottom: 8px;
+            }
+            
+            .dynamic-buttons {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+
+        /* Asegurar que los campos dinámicos no se salgan */
+        .dynamic-item {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .dynamic-item input,
+        .dynamic-item select,
+        .dynamic-item textarea {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .location-btn {
+            background: #28a745;
+            color: white;
+            border: 2px solid transparent;
+        }
+
+        .location-btn:hover {
+            background: #218838;
+        }
+
+        .success-message {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 16px;
+            border-radius: var(--border-radius);
+            margin: 16px 0;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Auto-save indicator */
+        .auto-save {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--orange-primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .auto-save.show {
+            opacity: 1;
+        }
+
+        /* Touch optimizations */
+        @media (max-width: 767px) {
+            input, select, textarea, .btn {
+                min-height: 48px;
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+            
+            .canvas-tools {
+                gap: 8px;
+            }
+            
+            .tool-btn {
+                padding: 12px 16px;
+                min-height: 48px;
+            }
+        }
+
+        /* Loading states */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--gray-border);
+            border-top-color: var(--orange-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>📋 Formulario de Visitas</h1>
+            <p>Complete todos los campos requeridos para registrar la visita</p>
+        </header>
+
+        <div class="progress-bar">
+            <div class="progress-steps">
+                <div class="progress-step active" data-step="1">
+                    <div class="step-icon">1</div>
+                    <div class="step-label">Datos Básicos</div>
+                </div>
+                <div class="progress-step" data-step="2">
+                    <div class="step-icon">2</div>
+                    <div class="step-label">Vivienda</div>
+                </div>
+                <div class="progress-step" data-step="3">
+                    <div class="step-icon">3</div>
+                    <div class="step-label">Inquilinos</div>
+                </div>
+                <div class="progress-step" data-step="4">
+                    <div class="step-icon">4</div>
+                    <div class="step-label">Negocio</div>
+                </div>
+                <div class="progress-step" data-step="5">
+                    <div class="step-icon">5</div>
+                    <div class="step-label">Empleo</div>
+                </div>
+                <div class="progress-step" data-step="6">
+                    <div class="step-icon">6</div>
+                    <div class="step-label">Verificación</div>
+                </div>
+                <div class="progress-step" data-step="7">
+                    <div class="step-icon">7</div>
+                    <div class="step-label">Croquis</div>
+                </div>
+                <div class="progress-step" data-step="8">
+                    <div class="step-icon">8</div>
+                    <div class="step-label">Firma</div>
+                </div>
+            </div>
+            <div class="progress-fill">
+                <div class="progress-bar-fill"></div>
+            </div>
+        </div>
+
+        <form class="form-container" id="visitForm">
+            <!-- Paso 1: Datos Básicos -->
+            <div class="form-step active" data-step="1">
+                <h2 class="step-title">
+                    <span>👤</span> Datos Básicos del Propietario
+                </h2>
+                <div class="form-grid two-columns">
+                    <div class="form-group">
+                        <label for="fechaVisita">Fecha de Visita <span class="required">*</span></label>
+                        <input type="date" id="fechaVisita" name="fechaVisita" required>
+                        <div class="error-message">Este campo es obligatorio</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="montoSolicitado">Monto Solicitado <span class="required">*</span></label>
+                        <input type="number" id="montoSolicitado" name="montoSolicitado" required min="0" step="0.01" placeholder="Q 0.00">
+                        <div class="error-message">Este campo es obligatorio</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="nombrePropietario">Nombre del Propietario <span class="required">*</span></label>
+                        <input type="text" id="nombrePropietario" name="nombrePropietario" required maxlength="100">
+                        <div class="error-message">Este campo es obligatorio</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="contadorFisico">Contador Físico</label>
+                        <input type="text" id="contadorFisico" name="contadorFisico" maxlength="50">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="direccion">Dirección <span class="required">*</span></label>
+                        <textarea id="direccion" name="direccion" required placeholder="Ingrese la dirección completa"></textarea>
+                        <div class="error-message">Este campo es obligatorio</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="personaAtiende">Persona que Atendió <span class="required">*</span></label>
+                        <input type="text" id="personaAtiende" name="personaAtiende" required maxlength="100">
+                        <div class="error-message">Este campo es obligatorio</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="parentesco">Parentesco <span class="required">*</span></label>
+                        <select id="parentesco" name="parentesco" required>
+                            <option value="">Seleccione...</option>
+                            <option value="Propietario">Propietario</option>
+                            <option value="Esposo/a">Esposo/a</option>
+                            <option value="Hijo/a">Hijo/a</option>
+                            <option value="Padre/Madre">Padre/Madre</option>
+                            <option value="Hermano/a">Hermano/a</option>
+                            <option value="Otro familiar">Otro familiar</option>
+                            <option value="Inquilino">Inquilino</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                        <div class="error-message">Este campo es obligatorio</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="tiempoResidencia">Tiempo de Residir en el Inmueble <span class="required">*</span></label>
+                        <input type="text" id="tiempoResidencia" name="tiempoResidencia" required placeholder="Ej: 5 años, 2 meses">
+                        <div class="error-message">Este campo es obligatorio</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="cui">No. CUI <span class="required">*</span></label>
+                        <input type="text" id="cui" name="cui" required pattern="[0-9]{13}" placeholder="1234567890123">
+                        <div class="error-message">Ingrese un CUI válido de 13 dígitos</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefonoCelular">Teléfono Celular <span class="required">*</span></label>
+                        <input type="tel" id="telefonoCelular" name="telefonoCelular" required pattern="[0-9\-\+\s\(\)]{8,15}" placeholder="1234-5678">
+                        <div class="error-message">Este campo es obligatorio</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="formaAdquisicion">Forma en la que Adquirió el Inmueble <span class="required">*</span></label>
+                        <select id="formaAdquisicion" name="formaAdquisicion" required>
+                            <option value="">Seleccione...</option>
+                            <option value="Compra">Compra</option>
+                            <option value="Herencia">Herencia</option>
+                            <option value="Donación">Donación</option>
+                            <option value="Construcción propia">Construcción propia</option>
+                            <option value="Invasión">Invasión</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                        <div class="error-message">Este campo es obligatorio</div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="quienesViven">¿Quiénes Viven en el Inmueble? <span class="required">*</span></label>
+                        <textarea id="quienesViven" name="quienesViven" required rows="3" placeholder="Liste las personas que viven en el inmueble con edades y parentesco"></textarea>
+                        <div class="error-message">Este campo es obligatorio</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="dimensionesInmueble">Dimensiones del Inmueble <span class="required">*</span></label>
+                        <input type="text" id="dimensionesInmueble" name="dimensionesInmueble" required placeholder="Ej: 10m x 15m">
+                        <div class="error-message">Este campo es obligatorio</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="destinoCredito">Destino de Crédito <span class="required">*</span></label>
+                        <select id="destinoCredito" name="destinoCredito" required>
+                            <option value="">Seleccione...</option>
+                            <option value="Mejoras al hogar">Mejoras al hogar</option>
+                            <option value="Negocio">Negocio</option>
+                            <option value="Educación">Educación</option>
+                            <option value="Salud">Salud</option>
+                            <option value="Agricultura">Agricultura</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                        <div class="error-message">Este campo es obligatorio</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paso 2: Información de la Vivienda -->
+            <div class="form-step" data-step="2">
+                <h2 class="step-title">
+                    <span>🏠</span> Información de la Vivienda
+                </h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Tipo de Vivienda <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="casa" name="tipoVivienda" value="Casa" required>
+                                <label for="casa">Casa</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="apartamento" name="tipoVivienda" value="Apartamento">
+                                <label for="apartamento">Apartamento</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="rancho" name="tipoVivienda" value="Rancho">
+                                <label for="rancho">Rancho</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="otro" name="tipoVivienda" value="Otro">
+                                <label for="otro">Otro</label>
+                            </div>
+                        </div>
+                        <div class="error-message">Seleccione el tipo de vivienda</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Material de Paredes</label>
+                        <select id="materialParedes" name="materialParedes">
+                            <option value="">Seleccione...</option>
+                            <option value="Block">Block</option>
+                            <option value="Ladrillo">Ladrillo</option>
+                            <option value="Adobe">Adobe</option>
+                            <option value="Madera">Madera</option>
+                            <option value="Lámina">Lámina</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Material del Techo</label>
+                        <select id="materialTecho" name="materialTecho">
+                            <option value="">Seleccione...</option>
+                            <option value="Concreto">Concreto</option>
+                            <option value="Lámina">Lámina</option>
+                            <option value="Teja">Teja</option>
+                            <option value="Terraza">Terraza</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Material del Piso</label>
+                        <select id="materialPiso" name="materialPiso">
+                            <option value="">Seleccione...</option>
+                            <option value="Cerámico">Cerámico</option>
+                            <option value="Cemento">Cemento</option>
+                            <option value="Tierra">Tierra</option>
+                            <option value="Madera">Madera</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="numeroHabitaciones">Número de Habitaciones</label>
+                        <input type="number" id="numeroHabitaciones" name="numeroHabitaciones" min="1" max="20">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="numeroBanos">Número de Baños</label>
+                        <input type="number" id="numeroBanos" name="numeroBanos" min="0" max="10">
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label>Servicios Disponibles</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="agua" name="servicios" value="Agua">
+                                <label for="agua">Agua</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="luz" name="servicios" value="Luz">
+                                <label for="luz">Luz</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="drenaje" name="servicios" value="Drenaje">
+                                <label for="drenaje">Drenaje</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="telefono" name="servicios" value="Teléfono">
+                                <label for="telefono">Teléfono</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="internet" name="servicios" value="Internet">
+                                <label for="internet">Internet</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Condición General de la Vivienda</label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="excelente" name="condicionVivienda" value="Excelente">
+                                <label for="excelente">Excelente</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="buena" name="condicionVivienda" value="Buena">
+                                <label for="buena">Buena</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="regular" name="condicionVivienda" value="Regular">
+                                <label for="regular">Regular</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="mala" name="condicionVivienda" value="Mala">
+                                <label for="mala">Mala</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="formaIngresoGarita">Forma de Ingreso a Garita</label>
+                        <select id="formaIngresoGarita" name="formaIngresoGarita">
+                            <option value="">Seleccione...</option>
+                            <option value="Código">Código</option>
+                            <option value="Marbete">Marbete</option>
+                            <option value="Entrada Libre">Entrada Libre</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paso 3: Información de Inquilinos -->
+            <div class="form-step" data-step="3">
+                <h2 class="step-title">
+                    <span>🏠</span> En Caso el Inmueble Esté Ocupado por Inquilinos
+                </h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>¿Tiene Contrato de Arrendamiento?</label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="contratoSi" name="contratoArrendamiento" value="Si">
+                                <label for="contratoSi">Sí</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="contratoNo" name="contratoArrendamiento" value="No">
+                                <label for="contratoNo">No</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="aPagarRenta">¿A Quién le Paga la Renta?</label>
+                        <input type="text" id="aPagarRenta" name="aPagarRenta" maxlength="100">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="valorRenta">Valor de la Renta</label>
+                        <input type="number" id="valorRenta" name="valorRenta" min="0" step="0.01" placeholder="Q 0.00">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tiempoResidenciaInquilino">Tiempo de Residir en el Inmueble (Inquilino)</label>
+                        <input type="text" id="tiempoResidenciaInquilino" name="tiempoResidenciaInquilino" placeholder="Ej: 2 años, 6 meses">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="formaPago">Forma de Pago</label>
+                        <select id="formaPago" name="formaPago">
+                            <option value="">Seleccione...</option>
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Transferencia">Transferencia</option>
+                            <option value="Cheque">Cheque</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="comentariosInquilino">Comentarios</label>
+                        <textarea id="comentariosInquilino" name="comentariosInquilino" rows="3" placeholder="Comentarios adicionales sobre el arrendamiento"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paso 4: Información del Negocio Propio -->
+            <div class="form-step" data-step="4">
+                <h2 class="step-title">
+                    <span>💼</span> Negocio Propio
+                </h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="nombreNegocio">Nombre del Negocio</label>
+                        <input type="text" id="nombreNegocio" name="nombreNegocio" maxlength="100">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="patenteComercio">Patente de Comercio</label>
+                        <input type="text" id="patenteComercio" name="patenteComercio" maxlength="50">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="giroNegocio">Giro del Negocio</label>
+                        <input type="text" id="giroNegocio" name="giroNegocio" maxlength="100" placeholder="Ej: Venta de abarrotes, Panadería, etc.">
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="direccionNegocio">Dirección del Negocio</label>
+                        <textarea id="direccionNegocio" name="direccionNegocio" rows="2" placeholder="Dirección completa del negocio"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Tipo de Local</label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="localPropio" name="tipoLocal" value="Propio">
+                                <label for="localPropio">Propio</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="localFamiliar" name="tipoLocal" value="Familiar">
+                                <label for="localFamiliar">Familiar</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="localAmortizado" name="tipoLocal" value="Amortizado">
+                                <label for="localAmortizado">Amortizado</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="localAlquilado" name="tipoLocal" value="Alquilada">
+                                <label for="localAlquilado">Alquilado</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pagoMensualLocal">Pago Mensual del Local</label>
+                        <input type="number" id="pagoMensualLocal" name="pagoMensualLocal" min="0" step="0.01" placeholder="Q 0.00">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tiempoOperacion">Tiempo de Operación</label>
+                        <input type="text" id="tiempoOperacion" name="tiempoOperacion" placeholder="Ej: 3 años, 8 meses">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="numeroEmpleados">No. Empleados</label>
+                        <input type="number" id="numeroEmpleados" name="numeroEmpleados" min="0" max="100">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ingresosMensuales">Ingresos Mensuales</label>
+                        <input type="number" id="ingresosMensuales" name="ingresosMensuales" min="0" step="0.01" placeholder="Q 0.00">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pagoMensualNegocio">Pago Mensual (Gastos)</label>
+                        <input type="number" id="pagoMensualNegocio" name="pagoMensualNegocio" min="0" step="0.01" placeholder="Q 0.00">
+                    </div>
+
+                    <!-- Proveedores -->
+                    <div class="form-group full-width dynamic-section">
+                        <h4>Proveedores Principales</h4>
+                        <div id="proveedoresContainer">
+                            <div class="proveedor-item dynamic-item">
+                                <div class="form-grid two-columns">
+                                    <input type="text" name="proveedor[]" placeholder="Nombre del proveedor" maxlength="100">
+                                    <input type="number" name="montoProveedor[]" placeholder="Monto Q" min="0" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="agregarProveedor()">+ Agregar Proveedor</button>
+                    </div>
+
+                    <!-- Mobiliario y Equipo -->
+                    <div class="form-group full-width dynamic-section">
+                        <h4>Mobiliario y Equipo</h4>
+                        <div id="mobiliarioContainer">
+                            <div class="mobiliario-item dynamic-item">
+                                <div class="form-grid two-columns">
+                                    <input type="text" name="mobiliario[]" placeholder="Descripción" maxlength="100">
+                                    <input type="number" name="valorMobiliario[]" placeholder="Valor Q" min="0" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="agregarMobiliario()">+ Agregar Mobiliario</button>
+                    </div>
+
+                    <!-- Mercadería en Negocio -->
+                    <div class="form-group full-width dynamic-section">
+                        <h4>Mercadería en Negocio</h4>
+                        <div id="mercaderiaContainer">
+                            <div class="mercaderia-item dynamic-item">
+                                <div class="form-grid two-columns">
+                                    <input type="text" name="mercaderia[]" placeholder="Descripción" maxlength="100">
+                                    <input type="number" name="valorMercaderia[]" placeholder="Valor Q" min="0" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="agregarMercaderia()">+ Agregar Mercadería</button>
+                    </div>
+
+                    <!-- Estado Físico del Negocio -->
+                    <div class="form-group">
+                        <label>Estado Físico Interior del Negocio</label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="interiorBueno" name="estadoFisicoInterior" value="Bueno">
+                                <label for="interiorBueno">Bueno</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="interiorRegular" name="estadoFisicoInterior" value="Regular">
+                                <label for="interiorRegular">Regular</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="interiorMalo" name="estadoFisicoInterior" value="Malo">
+                                <label for="interiorMalo">Malo</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Estado Físico Exterior del Negocio</label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="exteriorBueno" name="estadoFisicoExterior" value="Bueno">
+                                <label for="exteriorBueno">Bueno</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="exteriorRegular" name="estadoFisicoExterior" value="Regular">
+                                <label for="exteriorRegular">Regular</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="exteriorMalo" name="estadoFisicoExterior" value="Malo">
+                                <label for="exteriorMalo">Malo</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Inventario -->
+                    <div class="form-group full-width dynamic-section">
+                        <h4>Inventario</h4>
+                        <div class="inventario-header">
+                            <div>Descripción</div>
+                            <div>Cantidad</div>
+                            <div>Compra Q</div>
+                            <div>Venta Q</div>
+                            <div>Total Q</div>
+                            <div></div>
+                        </div>
+                        <div id="inventarioContainer">
+                            <div class="inventario-item dynamic-item">
+                                <div class="form-grid" style="grid-template-columns: 2fr 1fr 1fr 1fr 1fr;">
+                                    <input type="text" name="productoDescripcion[]" placeholder="Descripción del Producto" maxlength="100">
+                                    <input type="number" name="productoCantidad[]" placeholder="Cantidad" min="0" onchange="calcularTotalVenta(this)">
+                                    <input type="number" name="productoCompra[]" placeholder="Valor Compra Q" min="0" step="0.01">
+                                    <input type="number" name="productoVenta[]" placeholder="Precio Venta Q" min="0" step="0.01" onchange="calcularTotalVenta(this)">
+                                    <input type="number" name="productoTotalVenta[]" placeholder="Total Venta Q" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="agregarInventario()">+ Agregar Producto</button>
+                    </div>
+
+                    <!-- Costos Fijos -->
+                    <div class="form-group full-width dynamic-section">
+                        <h4>Costos Fijos</h4>
+                        <div class="form-grid two-columns">
+                            <div class="form-group">
+                                <label for="costoAgua">Agua</label>
+                                <input type="number" id="costoAgua" name="costoAgua" min="0" step="0.01" placeholder="Q 0.00">
+                            </div>
+                            <div class="form-group">
+                                <label for="costoLuz">Luz</label>
+                                <input type="number" id="costoLuz" name="costoLuz" min="0" step="0.01" placeholder="Q 0.00">
+                            </div>
+                            <div class="form-group">
+                                <label for="costoAlquiler">Alquiler</label>
+                                <input type="number" id="costoAlquiler" name="costoAlquiler" min="0" step="0.01" placeholder="Q 0.00">
+                            </div>
+                            <div class="form-group">
+                                <label for="costoTelefono">Teléfono</label>
+                                <input type="number" id="costoTelefono" name="costoTelefono" min="0" step="0.01" placeholder="Q 0.00">
+                            </div>
+                            <div class="form-group">
+                                <label for="costoBasura">Basura</label>
+                                <input type="number" id="costoBasura" name="costoBasura" min="0" step="0.01" placeholder="Q 0.00">
+                            </div>
+                            <div class="form-group">
+                                <label for="totalCostosFijos">Total Costos Fijos</label>
+                                <input type="number" id="totalCostosFijos" name="totalCostosFijos" readonly placeholder="Q 0.00">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Otros Gastos -->
+                    <div class="form-group full-width dynamic-section">
+                        <h4>Otros Gastos</h4>
+                        <div id="otrosGastosContainer">
+                            <div class="otros-gastos-item dynamic-item">
+                                <div class="form-grid two-columns">
+                                    <input type="text" name="descripcionGasto[]" placeholder="Descripción" maxlength="100">
+                                    <input type="number" name="montoGasto[]" placeholder="Monto Q" min="0" step="0.01" onchange="calcularTotalCostos()">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="agregarOtrosGastos()">+ Agregar Gasto</button>
+                    </div>
+
+                    <!-- Resumen Financiero -->
+                    <div class="form-group full-width dynamic-section">
+                        <h4>Resumen Financiero</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="totalVentasMes">Total Ventas en el Mes</label>
+                                <input type="number" id="totalVentasMes" name="totalVentasMes" readonly placeholder="Q 0.00">
+                            </div>
+                            <div class="form-group">
+                                <label for="costoTotalMes">Costo Total en el Mes</label>
+                                <input type="number" id="costoTotalMes" name="costoTotalMes" readonly placeholder="Q 0.00">
+                            </div>
+                            <div class="form-group">
+                                <label for="utilidadNeta">Utilidad Neta del Negocio</label>
+                                <input type="number" id="utilidadNeta" name="utilidadNeta" readonly placeholder="Q 0.00">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paso 5: Relación de Dependencia -->
+            <div class="form-step" data-step="5">
+                <h2 class="step-title">
+                    <span>🏢</span> Relación de Dependencia
+                </h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="nombreEmpresa">Nombre de la Empresa</label>
+                        <input type="text" id="nombreEmpresa" name="nombreEmpresa" maxlength="100">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="direccionEmpresa">Dirección de la Empresa</label>
+                        <input type="text" id="direccionEmpresa" name="direccionEmpresa" maxlength="200">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>¿Tiene IGSS?</label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="igssSi" name="igss" value="Si">
+                                <label for="igssSi">Sí</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="igssNo" name="igss" value="No">
+                                <label for="igssNo">No</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="puestoTrabajo">Puesto</label>
+                        <input type="text" id="puestoTrabajo" name="puestoTrabajo" maxlength="100">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="salario">Salario</label>
+                        <input type="number" id="salario" name="salario" min="0" step="0.01" placeholder="Q 0.00">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="fechaIngreso">Fecha de Ingreso</label>
+                        <input type="date" id="fechaIngreso" name="fechaIngreso">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="telefonoEmpresa">Teléfono de la Empresa</label>
+                        <input type="tel" id="telefonoEmpresa" name="telefonoEmpresa" pattern="[0-9\-\+\s\(\)]{8,15}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paso 6: Verificación con Vecinos y Observaciones -->
+            <div class="form-step" data-step="6">
+                <h2 class="step-title">
+                    <span>🏘️</span> Verificación con Vecinos y Observaciones
+                </h2>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="verificacionCasa1">Verificación Casa 1</label>
+                        <textarea id="verificacionCasa1" name="verificacionCasa1" rows="3" placeholder="Información proporcionada por el vecino de la casa 1"></textarea>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="verificacionCasa2">Verificación Casa 2</label>
+                        <textarea id="verificacionCasa2" name="verificacionCasa2" rows="3" placeholder="Información proporcionada por el vecino de la casa 2"></textarea>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="observacionesGenerales">Observaciones Generales</label>
+                        <textarea id="observacionesGenerales" name="observacionesGenerales" rows="5" placeholder="Ingrese cualquier observación relevante sobre la visita..."></textarea>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label>Fotografías de la Vivienda y Negocio</label>
+                        <div class="file-upload">
+                            <input type="file" id="photos" name="photos" accept="image/*" multiple capture="environment" class="file-input">
+                            <label for="photos" class="file-label">
+                                <span>📷</span>
+                                <div>
+                                    <strong>Tomar/Subir Fotografías</strong><br>
+                                    <small>Toque para usar la cámara o seleccionar archivos</small>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="photo-preview" id="photoPreview"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="verificador">Nombre del Verificador <span class="required">*</span></label>
+                        <input type="text" id="verificador" name="verificador" required maxlength="100">
+                        <div class="error-message">Este campo es obligatorio</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paso 7: Croquis -->
+            <div class="form-step" data-step="7">
+                <h2 class="step-title">
+                    <span>🗺️</span> Croquis de Vivienda y Ubicación
+                </h2>
+                <div class="canvas-container">
+                    <h3>Croquis de la Vivienda</h3>
+                    <p>Dibuje un croquis de la vivienda y sus alrededores</p>
+                    <canvas id="sketchCanvas" width="400" height="300"></canvas>
+                    <div class="canvas-tools">
+                        <button type="button" class="tool-btn active" data-tool="draw">
+                            <span>✏️</span> Dibujar
+                        </button>
+                        <button type="button" class="tool-btn" data-thickness="2">
+                            <span>⚫</span> Fino
+                        </button>
+                        <button type="button" class="tool-btn" data-thickness="5">
+                            <span>⬤</span> Grueso
+                        </button>
+                        <button type="button" class="tool-btn" id="undoBtn">
+                            <span>↶</span> Deshacer
+                        </button>
+                        <button type="button" class="tool-btn" id="clearSketchBtn">
+                            <span>🗑️</span> Limpiar
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="canvas-container" style="margin-top: 24px;">
+                    <h3>Croquis de Ubicación</h3>
+                    <p>Dibuje un croquis de la ubicación del inmueble</p>
+                    <canvas id="locationCanvas" width="400" height="300"></canvas>
+                    <div class="canvas-tools">
+                        <button type="button" class="tool-btn active" data-tool="draw" data-canvas="location">
+                            <span>✏️</span> Dibujar
+                        </button>
+                        <button type="button" class="tool-btn" data-thickness="2" data-canvas="location">
+                            <span>⚫</span> Fino
+                        </button>
+                        <button type="button" class="tool-btn" data-thickness="5" data-canvas="location">
+                            <span>⬤</span> Grueso
+                        </button>
+                        <button type="button" class="tool-btn" id="undoLocationBtn">
+                            <span>↶</span> Deshacer
+                        </button>
+                        <button type="button" class="tool-btn" id="clearLocationBtn">
+                            <span>🗑️</span> Limpiar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paso 8: Firma -->
+            <div class="form-step" data-step="8">
+                <h2 class="step-title">
+                    <span>✍️</span> Firmas
+                </h2>
+                
+                <div class="canvas-container">
+                    <h3>Firma del Cliente</h3>
+                    <p>El cliente debe firmar aquí para confirmar la información <span class="required">*</span></p>
+                    <canvas id="signatureCanvas" width="400" height="200"></canvas>
+                    <div class="canvas-tools">
+                        <button type="button" class="tool-btn" id="clearSignatureBtn">
+                            <span>🗑️</span> Limpiar Firma
+                        </button>
+                    </div>
+                    <div class="error-message" id="signatureError">La firma es obligatoria</div>
+                </div>
+                
+                <div class="canvas-container" style="margin-top: 24px;">
+                    <h3>Firma del Verificador</h3>
+                    <p>El verificador debe firmar aquí <span class="required">*</span></p>
+                    <canvas id="verifierSignatureCanvas" width="400" height="200"></canvas>
+                    <div class="canvas-tools">
+                        <button type="button" class="tool-btn" id="clearVerifierSignatureBtn">
+                            <span>🗑️</span> Limpiar Firma
+                        </button>
+                    </div>
+                    <div class="error-message" id="verifierSignatureError">La firma del verificador es obligatoria</div>
+                </div>
+                
+                <div class="success-message" id="successMessage">
+                    <strong>¡Formulario completado exitosamente!</strong><br>
+                    Los datos han sido guardados correctamente.
+                </div>
+            </div>
+            <div class="form-step" data-step="4">
+                <h2 class="step-title">
+                    <span>📝</span> Observaciones y Adjuntos
+                </h2>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="observaciones">Observaciones Generales</label>
+                        <textarea id="observaciones" name="observaciones" rows="5" placeholder="Ingrese cualquier observación relevante sobre la visita..."></textarea>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="recomendaciones">Recomendaciones</label>
+                        <textarea id="recomendaciones" name="recomendaciones" rows="4" placeholder="Ingrese recomendaciones para el solicitante..."></textarea>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label>Fotografías de la Vivienda</label>
+                        <div class="file-upload">
+                            <input type="file" id="photos" name="photos" accept="image/*" multiple capture="environment" class="file-input">
+                            <label for="photos" class="file-label">
+                                <span>📷</span>
+                                <div>
+                                    <strong>Tomar/Subir Fotografías</strong><br>
+                                    <small>Toque para usar la cámara o seleccionar archivos</small>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="photo-preview" id="photoPreview"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="fechaVisita">Fecha de la Visita <span class="required">*</span></label>
+                        <input type="date" id="fechaVisita" name="fechaVisita" required>
+                        <div class="error-message">Este campo es obligatorio</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="verificador">Nombre del Verificador <span class="required">*</span></label>
+                        <input type="text" id="verificador" name="verificador" required maxlength="100">
+                        <div class="error-message">Este campo es obligatorio</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paso 5: Croquis -->
+            <div class="form-step" data-step="5">
+                <h2 class="step-title">
+                    <span>🗺️</span> Croquis de la Vivienda
+                </h2>
+                <div class="canvas-container">
+                    <p>Dibuje un croquis de la vivienda y sus alrededores</p>
+                    <canvas id="sketchCanvas" width="400" height="300"></canvas>
+                    <div class="canvas-tools">
+                        <button type="button" class="tool-btn active" data-tool="draw">
+                            <span>✏️</span> Dibujar
+                        </button>
+                        <button type="button" class="tool-btn" data-thickness="2">
+                            <span>⚫</span> Fino
+                        </button>
+                        <button type="button" class="tool-btn" data-thickness="5">
+                            <span>⬤</span> Grueso
+                        </button>
+                        <button type="button" class="tool-btn" id="undoBtn">
+                            <span>↶</span> Deshacer
+                        </button>
+                        <button type="button" class="tool-btn" id="clearSketchBtn">
+                            <span>🗑️</span> Limpiar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paso 6: Firma -->
+            <div class="form-step" data-step="6">
+                <h2 class="step-title">
+                    <span>✍️</span> Firma del Solicitante
+                </h2>
+                <div class="canvas-container">
+                    <p>El solicitante debe firmar aquí para confirmar la información <span class="required">*</span></p>
+                    <canvas id="signatureCanvas" width="400" height="200"></canvas>
+                    <div class="canvas-tools">
+                        <button type="button" class="tool-btn" id="clearSignatureBtn">
+                            <span>🗑️</span> Limpiar Firma
+                        </button>
+                    </div>
+                    <div class="error-message" id="signatureError">La firma es obligatoria</div>
+                </div>
+                
+                <div class="success-message" id="successMessage">
+                    <strong>¡Formulario completado exitosamente!</strong><br>
+                    Los datos han sido guardados correctamente.
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="prevBtn" style="display: none;">
+                    <span>←</span> Anterior
+                </button>
+                <button type="button" class="btn btn-primary" id="nextBtn">
+                    Siguiente <span>→</span>
+                </button>
+                <button type="submit" class="btn btn-primary" id="submitBtn" style="display: none;">
+                    <span>✓</span> Enviar Formulario
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="auto-save" id="autoSave">
+        Guardado automáticamente
+    </div>
+
+    <script>
+        class VisitFormApp {
+            constructor() {
+                this.currentStep = 1;
+                this.totalSteps = 8;
+                this.formData = {};
+                this.photos = [];
+                this.sketchData = null;
+                this.locationSketchData = null;
+                this.signatureData = null;
+                this.verifierSignatureData = null;
+                this.isDrawing = false;
+                this.lastX = 0;
+                this.lastY = 0;
+                this.currentTool = 'draw';
+                this.currentThickness = 2;
+                this.sketchHistory = [];
+                this.sketchHistoryIndex = -1;
+                this.locationHistory = [];
+                this.locationHistoryIndex = -1;
+                
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.setupCanvas();
+                this.loadSavedData();
+                this.updateProgress();
+                this.setCurrentDate();
+            }
+
+            setupEventListeners() {
+                // Navigation buttons
+                document.getElementById('nextBtn').addEventListener('click', () => this.nextStep());
+                document.getElementById('prevBtn').addEventListener('click', () => this.prevStep());
+                document.getElementById('submitBtn').addEventListener('click', (e) => this.submitForm(e));
+
+                // Form inputs for auto-save
+                const inputs = document.querySelectorAll('input, select, textarea');
+                inputs.forEach(input => {
+                    input.addEventListener('input', () => this.autoSave());
+                    input.addEventListener('change', () => this.autoSave());
+                });
+
+                // Radio and checkbox handlers
+                this.setupRadioCheckboxHandlers();
+
+                // Location button (only if it exists)
+                const locationBtn = document.getElementById('getLocationBtn');
+                if (locationBtn) {
+                    locationBtn.addEventListener('click', () => this.getCurrentLocation());
+                }
+
+                // File upload
+                const photosInput = document.getElementById('photos');
+                if (photosInput) {
+                    photosInput.addEventListener('change', (e) => this.handlePhotoUpload(e));
+                }
+
+                // Canvas tools
+                document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.setTool(e.target.closest('.tool-btn').dataset.tool));
+                });
+
+                document.querySelectorAll('.tool-btn[data-thickness]').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.setThickness(e.target.closest('.tool-btn').dataset.thickness));
+                });
+
+                // Canvas action buttons (only if they exist)
+                const undoBtn = document.getElementById('undoBtn');
+                if (undoBtn) {
+                    undoBtn.addEventListener('click', () => this.undoSketch());
+                }
+                
+                const clearSketchBtn = document.getElementById('clearSketchBtn');
+                if (clearSketchBtn) {
+                    clearSketchBtn.addEventListener('click', () => this.clearSketch());
+                }
+                
+                const undoLocationBtn = document.getElementById('undoLocationBtn');
+                if (undoLocationBtn) {
+                    undoLocationBtn.addEventListener('click', () => this.undoLocation());
+                }
+                
+                const clearLocationBtn = document.getElementById('clearLocationBtn');
+                if (clearLocationBtn) {
+                    clearLocationBtn.addEventListener('click', () => this.clearLocation());
+                }
+                
+                const clearSignatureBtn = document.getElementById('clearSignatureBtn');
+                if (clearSignatureBtn) {
+                    clearSignatureBtn.addEventListener('click', () => this.clearSignature());
+                }
+                
+                const clearVerifierSignatureBtn = document.getElementById('clearVerifierSignatureBtn');
+                if (clearVerifierSignatureBtn) {
+                    clearVerifierSignatureBtn.addEventListener('click', () => this.clearVerifierSignature());
+                }
+
+                // Form validation
+                inputs.forEach(input => {
+                    input.addEventListener('blur', () => this.validateField(input));
+                });
+            }
+
+            setupRadioCheckboxHandlers() {
+                // Radio buttons
+                document.querySelectorAll('input[type="radio"]').forEach(radio => {
+                    radio.addEventListener('change', (e) => {
+                        const name = e.target.name;
+                        document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+                            r.closest('.radio-item').classList.remove('selected');
+                        });
+                        e.target.closest('.radio-item').classList.add('selected');
+                    });
+                });
+
+                // Checkboxes
+                document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.addEventListener('change', (e) => {
+                        if (e.target.checked) {
+                            e.target.closest('.checkbox-item').classList.add('selected');
+                        } else {
+                            e.target.closest('.checkbox-item').classList.remove('selected');
+                        }
+                    });
+                });
+            }
+
+            setupCanvas() {
+                // Sketch canvas
+                this.sketchCanvas = document.getElementById('sketchCanvas');
+                this.sketchCtx = this.sketchCanvas.getContext('2d');
+                this.setupCanvasDrawing(this.sketchCanvas, this.sketchCtx, 'sketch');
+
+                // Location canvas
+                this.locationCanvas = document.getElementById('locationCanvas');
+                this.locationCtx = this.locationCanvas.getContext('2d');
+                this.setupCanvasDrawing(this.locationCanvas, this.locationCtx, 'location');
+
+                // Signature canvas
+                this.signatureCanvas = document.getElementById('signatureCanvas');
+                this.signatureCtx = this.signatureCanvas.getContext('2d');
+                this.setupCanvasDrawing(this.signatureCanvas, this.signatureCtx, 'signature');
+
+                // Verifier signature canvas
+                this.verifierSignatureCanvas = document.getElementById('verifierSignatureCanvas');
+                this.verifierSignatureCtx = this.verifierSignatureCanvas.getContext('2d');
+                this.setupCanvasDrawing(this.verifierSignatureCanvas, this.verifierSignatureCtx, 'verifierSignature');
+
+                // Make canvas responsive
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+            }
+
+            setupCanvasDrawing(canvas, ctx, type) {
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.strokeStyle = '#333';
+
+                // Mouse events
+                canvas.addEventListener('mousedown', (e) => this.startDrawing(e, ctx, type));
+                canvas.addEventListener('mousemove', (e) => this.draw(e, ctx, type));
+                canvas.addEventListener('mouseup', () => this.stopDrawing(type));
+
+                // Touch events
+                canvas.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const mouseEvent = new MouseEvent('mousedown', {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY
+                    });
+                    canvas.dispatchEvent(mouseEvent);
+                });
+
+                canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const mouseEvent = new MouseEvent('mousemove', {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY
+                    });
+                    canvas.dispatchEvent(mouseEvent);
+                });
+
+                canvas.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    const mouseEvent = new MouseEvent('mouseup', {});
+                    canvas.dispatchEvent(mouseEvent);
+                });
+            }
+
+            startDrawing(e, ctx, type) {
+                this.isDrawing = true;
+                const rect = e.target.getBoundingClientRect();
+                this.lastX = e.clientX - rect.left;
+                this.lastY = e.clientY - rect.top;
+
+                if (type === 'sketch') {
+                    this.saveSketchState();
+                }
+            }
+
+            draw(e, ctx, type) {
+                if (!this.isDrawing) return;
+
+                const rect = e.target.getBoundingClientRect();
+                const currentX = e.clientX - rect.left;
+                const currentY = e.clientY - rect.top;
+
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.lineWidth = this.currentThickness;
+                ctx.beginPath();
+                ctx.moveTo(this.lastX, this.lastY);
+                ctx.lineTo(currentX, currentY);
+                ctx.stroke();
+
+                this.lastX = currentX;
+                this.lastY = currentY;
+            }
+
+            stopDrawing(type) {
+                if (!this.isDrawing) return;
+                this.isDrawing = false;
+
+                // Save canvas data
+                if (type === 'sketch') {
+                    this.sketchData = this.sketchCanvas.toDataURL();
+                } else if (type === 'location') {
+                    this.locationSketchData = this.locationCanvas.toDataURL();
+                } else if (type === 'signature') {
+                    this.signatureData = this.signatureCanvas.toDataURL();
+                } else if (type === 'verifierSignature') {
+                    this.verifierSignatureData = this.verifierSignatureCanvas.toDataURL();
+                }
+
+                this.autoSave();
+            }
+
+            setTool(tool) {
+                this.currentTool = tool;
+                document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-tool="${tool}"]`).classList.add('active');
+            }
+
+            setThickness(thickness) {
+                this.currentThickness = parseInt(thickness);
+                document.querySelectorAll('.tool-btn[data-thickness]').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-thickness="${thickness}"]`).classList.add('active');
+            }
+
+            saveSketchState() {
+                this.sketchHistoryIndex++;
+                if (this.sketchHistoryIndex < this.sketchHistory.length) {
+                    this.sketchHistory.length = this.sketchHistoryIndex;
+                }
+                this.sketchHistory.push(this.sketchCtx.getImageData(0, 0, this.sketchCanvas.width, this.sketchCanvas.height));
+            }
+
+            undoSketch() {
+                if (this.sketchHistoryIndex > 0) {
+                    this.sketchHistoryIndex--;
+                    this.sketchCtx.putImageData(this.sketchHistory[this.sketchHistoryIndex], 0, 0);
+                    this.sketchData = this.sketchCanvas.toDataURL();
+                    this.autoSave();
+                }
+            }
+
+            clearSketch() {
+                this.sketchCtx.clearRect(0, 0, this.sketchCanvas.width, this.sketchCanvas.height);
+                this.sketchData = null;
+                this.sketchHistory = [];
+                this.sketchHistoryIndex = -1;
+                this.saveSketchState();
+                this.autoSave();
+            }
+
+            clearLocation() {
+                this.locationCtx.clearRect(0, 0, this.locationCanvas.width, this.locationCanvas.height);
+                this.locationSketchData = null;
+                this.locationHistory = [];
+                this.locationHistoryIndex = -1;
+                this.autoSave();
+            }
+
+            undoLocation() {
+                if (this.locationHistoryIndex > 0) {
+                    this.locationHistoryIndex--;
+                    const imageData = this.locationHistory[this.locationHistoryIndex];
+                    this.locationCtx.putImageData(imageData, 0, 0);
+                    this.locationSketchData = this.locationCanvas.toDataURL();
+                    this.autoSave();
+                }
+            }
+
+            clearSignature() {
+                this.signatureCtx.clearRect(0, 0, this.signatureCanvas.width, this.signatureCanvas.height);
+                this.signatureData = null;
+                this.autoSave();
+                document.getElementById('signatureError').classList.remove('show');
+            }
+
+            clearVerifierSignature() {
+                this.verifierSignatureCtx.clearRect(0, 0, this.verifierSignatureCanvas.width, this.verifierSignatureCanvas.height);
+                this.verifierSignatureData = null;
+                this.autoSave();
+                document.getElementById('verifierSignatureError').classList.remove('show');
+            }
+
+            resizeCanvas() {
+                const containers = document.querySelectorAll('.canvas-container');
+                containers.forEach(container => {
+                    const canvas = container.querySelector('canvas');
+                    if (canvas) {
+                        const maxWidth = container.clientWidth - 32;
+                        if (canvas.width > maxWidth) {
+                            const ratio = canvas.height / canvas.width;
+                            canvas.style.width = maxWidth + 'px';
+                            canvas.style.height = (maxWidth * ratio) + 'px';
+                        }
+                    }
+                });
+            }
+
+            getCurrentLocation() {
+                const btn = document.getElementById('getLocationBtn');
+                const originalText = btn.innerHTML;
+                
+                btn.innerHTML = '<span>⏳</span> Obteniendo ubicación...';
+                btn.disabled = true;
+
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            document.getElementById('latitud').value = position.coords.latitude.toFixed(6);
+                            document.getElementById('longitud').value = position.coords.longitude.toFixed(6);
+                            btn.innerHTML = '<span>✓</span> Ubicación obtenida';
+                            btn.style.background = '#28a745';
+                            this.autoSave();
+                            setTimeout(() => {
+                                btn.innerHTML = originalText;
+                                btn.disabled = false;
+                                btn.style.background = '';
+                            }, 2000);
+                        },
+                        (error) => {
+                            btn.innerHTML = '<span>❌</span> Error al obtener ubicación';
+                            btn.style.background = '#dc3545';
+                            setTimeout(() => {
+                                btn.innerHTML = originalText;
+                                btn.disabled = false;
+                                btn.style.background = '';
+                            }, 2000);
+                        }
+                    );
+                } else {
+                    btn.innerHTML = '<span>❌</span> Geolocalización no soportada';
+                    btn.disabled = false;
+                }
+            }
+
+            handlePhotoUpload(e) {
+                const files = Array.from(e.target.files);
+                const preview = document.getElementById('photoPreview');
+
+                files.forEach((file, index) => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const img = this.compressImage(e.target.result, (compressedData) => {
+                                this.photos.push({
+                                    name: file.name,
+                                    data: compressedData,
+                                    size: file.size
+                                });
+
+                                const photoItem = document.createElement('div');
+                                photoItem.className = 'photo-item';
+                                photoItem.innerHTML = `
+                                    <img src="${compressedData}" alt="Foto ${this.photos.length}">
+                                    <button type="button" class="photo-remove" onclick="app.removePhoto(${this.photos.length - 1})">×</button>
+                                `;
+                                preview.appendChild(photoItem);
+                                this.autoSave();
+                            });
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+
+                // Clear input
+                e.target.value = '';
+            }
+
+            compressImage(src, callback, quality = 0.8) {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // Resize if too large
+                    const maxWidth = 800;
+                    const maxHeight = 600;
+                    let { width, height } = img;
+
+                    if (width > maxWidth || height > maxHeight) {
+                        const ratio = Math.min(maxWidth / width, maxHeight / height);
+                        width *= ratio;
+                        height *= ratio;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    ctx.drawImage(img, 0, 0, width, height);
+                    callback(canvas.toDataURL('image/jpeg', quality));
+                };
+                img.src = src;
+            }
+
+            removePhoto(index) {
+                this.photos.splice(index, 1);
+                this.refreshPhotoPreview();
+                this.autoSave();
+            }
+
+            refreshPhotoPreview() {
+                const preview = document.getElementById('photoPreview');
+                preview.innerHTML = '';
+                this.photos.forEach((photo, index) => {
+                    const photoItem = document.createElement('div');
+                    photoItem.className = 'photo-item';
+                    photoItem.innerHTML = `
+                        <img src="${photo.data}" alt="Foto ${index + 1}">
+                        <button type="button" class="photo-remove" onclick="app.removePhoto(${index})">×</button>
+                    `;
+                    preview.appendChild(photoItem);
+                });
+            }
+
+            setCurrentDate() {
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('fechaVisita').value = today;
+            }
+
+            validateStep(stepNumber) {
+                const stepElement = document.querySelector(`[data-step="${stepNumber}"]`);
+                const requiredFields = stepElement.querySelectorAll('[required]');
+                let isValid = true;
+
+                requiredFields.forEach(field => {
+                    if (!this.validateField(field)) {
+                        isValid = false;
+                    }
+                });
+
+                // Special validation for signatures in step 8
+                if (stepNumber === 8) {
+                    if (!this.signatureData) {
+                        document.getElementById('signatureError').classList.add('show');
+                        isValid = false;
+                    } else {
+                        document.getElementById('signatureError').classList.remove('show');
+                    }
+                    
+                    if (!this.verifierSignatureData) {
+                        document.getElementById('verifierSignatureError').classList.add('show');
+                        isValid = false;
+                    } else {
+                        document.getElementById('verifierSignatureError').classList.remove('show');
+                    }
+                }
+
+                return isValid;
+            }
+
+            validateField(field) {
+                const value = field.value.trim();
+                const errorElement = field.nextElementSibling;
+                let isValid = true;
+
+                // Required field validation
+                if (field.required && !value) {
+                    isValid = false;
+                }
+
+                // Specific field validations
+                switch (field.type) {
+                    case 'email':
+                        if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                            isValid = false;
+                        }
+                        break;
+                    case 'tel':
+                        if (value && !/^[0-9\-\+\s\(\)]{8,15}$/.test(value)) {
+                            isValid = false;
+                        }
+                        break;
+                }
+
+                // Pattern validation
+                if (field.pattern && value && !new RegExp(field.pattern).test(value)) {
+                    isValid = false;
+                }
+
+                // DPI specific validation
+                if (field.id === 'dpi' && value && (!/^\d{13}$/.test(value))) {
+                    isValid = false;
+                }
+
+                // Update UI
+                if (isValid) {
+                    field.classList.remove('error');
+                    if (errorElement && errorElement.classList.contains('error-message')) {
+                        errorElement.classList.remove('show');
+                    }
+                } else {
+                    field.classList.add('error');
+                    if (errorElement && errorElement.classList.contains('error-message')) {
+                        errorElement.classList.add('show');
+                    }
+                }
+
+                return isValid;
+            }
+
+            nextStep() {
+                console.log(`Intentando pasar del paso ${this.currentStep} al ${this.currentStep + 1}`);
+                
+                // Comentar temporalmente la validación para debugging
+                // if (!this.validateStep(this.currentStep)) {
+                //     console.log(`Validación falló para el paso ${this.currentStep}`);
+                //     return;
+                // }
+
+                if (this.currentStep < this.totalSteps) {
+                    this.currentStep++;
+                    console.log(`Moviendo al paso ${this.currentStep}`);
+                    this.updateStep();
+                } else {
+                    console.log('Ya estamos en el último paso');
+                }
+            }
+
+            prevStep() {
+                if (this.currentStep > 1) {
+                    this.currentStep--;
+                    console.log(`Retrocediendo al paso ${this.currentStep}`);
+                    this.updateStep();
+                }
+            }
+
+            updateStep() {
+                console.log(`Actualizando UI para mostrar paso ${this.currentStep}`);
+                
+                // Hide all steps
+                document.querySelectorAll('.form-step').forEach((step, index) => {
+                    step.classList.remove('active');
+                    console.log(`Ocultando paso ${index + 1}`);
+                });
+
+                // Show current step
+                const currentStepElement = document.querySelector(`.form-step[data-step="${this.currentStep}"]`);
+                if (currentStepElement) {
+                    currentStepElement.classList.add('active');
+                    console.log(`Mostrando paso ${this.currentStep}`);
+                } else {
+                    console.error(`No se encontró el elemento del paso ${this.currentStep}`);
+                }
+
+                // Update progress
+                this.updateProgress();
+
+                // Update buttons
+                this.updateButtons();
+
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            updateProgress() {
+                const progress = (this.currentStep / this.totalSteps) * 100;
+                document.querySelector('.progress-bar-fill').style.width = `${progress}%`;
+
+                // Update step indicators
+                document.querySelectorAll('.progress-step').forEach((step, index) => {
+                    const stepNumber = index + 1;
+                    step.classList.remove('active', 'completed');
+                    
+                    if (stepNumber === this.currentStep) {
+                        step.classList.add('active');
+                    } else if (stepNumber < this.currentStep) {
+                        step.classList.add('completed');
+                        step.querySelector('.step-icon').innerHTML = '✓';
+                    } else {
+                        step.querySelector('.step-icon').innerHTML = stepNumber;
+                    }
+                });
+            }
+
+            updateButtons() {
+                const prevBtn = document.getElementById('prevBtn');
+                const nextBtn = document.getElementById('nextBtn');
+                const submitBtn = document.getElementById('submitBtn');
+
+                if (this.currentStep === 1) {
+                    prevBtn.style.display = 'none';
+                } else {
+                    prevBtn.style.display = 'flex';
+                }
+
+                if (this.currentStep === this.totalSteps) {
+                    nextBtn.style.display = 'none';
+                    submitBtn.style.display = 'flex';
+                } else {
+                    nextBtn.style.display = 'flex';
+                    submitBtn.style.display = 'none';
+                }
+            }
+
+            autoSave() {
+                this.collectFormData();
+                this.saveToStorage();
+                this.showAutoSaveIndicator();
+            }
+
+            collectFormData() {
+                const formData = new FormData(document.getElementById('visitForm'));
+                this.formData = {};
+
+                // Basic form fields
+                for (let [key, value] of formData.entries()) {
+                    if (this.formData[key]) {
+                        // Handle multiple values (checkboxes)
+                        if (Array.isArray(this.formData[key])) {
+                            this.formData[key].push(value);
+                        } else {
+                            this.formData[key] = [this.formData[key], value];
+                        }
+                    } else {
+                        this.formData[key] = value;
+                    }
+                }
+
+                // Handle checkboxes separately
+                const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+                const servicios = [];
+                checkboxes.forEach(cb => {
+                    if (cb.name === 'servicios') {
+                        servicios.push(cb.value);
+                    }
+                });
+                if (servicios.length > 0) {
+                    this.formData.servicios = servicios;
+                }
+
+                // Add canvas data
+                this.formData.croquis = this.sketchData;
+                this.formData.firma = this.signatureData;
+                this.formData.fotos = this.photos;
+
+                // Add metadata
+                this.formData._metadata = {
+                    lastModified: new Date().toISOString(),
+                    currentStep: this.currentStep,
+                    version: '1.0'
+                };
+            }
+
+            saveToStorage() {
+                try {
+                    const dataToSave = {
+                        formData: this.formData,
+                        currentStep: this.currentStep,
+                        photos: this.photos,
+                        sketchData: this.sketchData,
+                        signatureData: this.signatureData
+                    };
+                    
+                    // Use a simple in-memory storage since localStorage is not available
+                    window.visitFormBackup = dataToSave;
+                } catch (error) {
+                    console.error('Error saving data:', error);
+                }
+            }
+
+            loadSavedData() {
+                try {
+                    const savedData = window.visitFormBackup;
+                    if (savedData) {
+                        this.formData = savedData.formData || {};
+                        this.currentStep = savedData.currentStep || 1;
+                        this.photos = savedData.photos || [];
+                        this.sketchData = savedData.sketchData;
+                        this.signatureData = savedData.signatureData;
+
+                        this.restoreFormFields();
+                        this.refreshPhotoPreview();
+                        this.restoreCanvasData();
+                        this.updateStep();
+                    }
+                } catch (error) {
+                    console.error('Error loading saved data:', error);
+                }
+            }
+
+            restoreFormFields() {
+                Object.keys(this.formData).forEach(key => {
+                    const field = document.querySelector(`[name="${key}"]`);
+                    if (field) {
+                        if (field.type === 'radio') {
+                            const radioOption = document.querySelector(`[name="${key}"][value="${this.formData[key]}"]`);
+                            if (radioOption) {
+                                radioOption.checked = true;
+                                radioOption.closest('.radio-item').classList.add('selected');
+                            }
+                        } else if (field.type === 'checkbox') {
+                            const values = Array.isArray(this.formData[key]) ? this.formData[key] : [this.formData[key]];
+                            values.forEach(value => {
+                                const checkbox = document.querySelector(`[name="${key}"][value="${value}"]`);
+                                if (checkbox) {
+                                    checkbox.checked = true;
+                                    checkbox.closest('.checkbox-item').classList.add('selected');
+                                }
+                            });
+                        } else {
+                            field.value = this.formData[key];
+                        }
+                    }
+                });
+            }
+
+            restoreCanvasData() {
+                if (this.sketchData) {
+                    const img = new Image();
+                    img.onload = () => {
+                        this.sketchCtx.drawImage(img, 0, 0);
+                    };
+                    img.src = this.sketchData;
+                }
+
+                if (this.signatureData) {
+                    const img = new Image();
+                    img.onload = () => {
+                        this.signatureCtx.drawImage(img, 0, 0);
+                    };
+                    img.src = this.signatureData;
+                }
+            }
+
+            showAutoSaveIndicator() {
+                const indicator = document.getElementById('autoSave');
+                indicator.classList.add('show');
+                setTimeout(() => {
+                    indicator.classList.remove('show');
+                }, 2000);
+            }
+
+            async submitForm(e) {
+                e.preventDefault();
+
+                if (!this.validateStep(this.currentStep)) {
+                    return;
+                }
+
+                const submitBtn = document.getElementById('submitBtn');
+                const originalText = submitBtn.innerHTML;
+                
+                submitBtn.innerHTML = '<span>⏳</span> Enviando...';
+                submitBtn.disabled = true;
+
+                try {
+                    this.collectFormData();
+                    
+                    // Simulate API call
+                    await this.mockApiSubmission();
+
+                    // Show success message
+                    document.getElementById('successMessage').classList.add('show');
+
+                    // Export options
+                    this.exportToJSON();
+                    this.exportToCSV();
+
+                    submitBtn.innerHTML = '<span>✓</span> Enviado';
+                    submitBtn.style.background = '#28a745';
+
+                    // Clear saved data
+                    delete window.visitFormBackup;
+
+                } catch (error) {
+                    console.error('Error submitting form:', error);
+                    submitBtn.innerHTML = '<span>❌</span> Error al enviar';
+                    submitBtn.style.background = '#dc3545';
+                    
+                    setTimeout(() => {
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                        submitBtn.style.background = '';
+                    }, 3000);
+                }
+            }
+
+            async mockApiSubmission() {
+                // Simulate API call
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        console.log('Form data submitted:', this.formData);
+                        resolve();
+                    }, 2000);
+                });
+            }
+
+            exportToJSON() {
+                const exportData = {
+                    ...this.formData,
+                    exportDate: new Date().toISOString(),
+                    version: '1.0'
+                };
+
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+                    type: 'application/json'
+                });
+                
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `formulario_visita_${new Date().getTime()}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            exportToCSV() {
+                // Define CSV headers based on form structure
+                const headers = [
+                    'Nombres',
+                    'Apellidos',
+                    'DPI',
+                    'Telefono',
+                    'Email',
+                    'Fecha_Nacimiento',
+                    'Genero',
+                    'Departamento',
+                    'Municipio',
+                    'Direccion',
+                    'Zona',
+                    'Aldea',
+                    'Latitud',
+                    'Longitud',
+                    'Tipo_Vivienda',
+                    'Material_Paredes',
+                    'Material_Techo',
+                    'Material_Piso',
+                    'Numero_Habitaciones',
+                    'Numero_Banos',
+                    'Servicios_Disponibles',
+                    'Condicion_Vivienda',
+                    'Observaciones',
+                    'Recomendaciones',
+                    'Fecha_Visita',
+                    'Verificador',
+                    'Num_Fotos',
+                    'Tiene_Croquis',
+                    'Tiene_Firma'
+                ];
+
+                const csvRow = [
+                    this.formData.nombres || '',
+                    this.formData.apellidos || '',
+                    this.formData.dpi || '',
+                    this.formData.telefono || '',
+                    this.formData.email || '',
+                    this.formData.fechaNacimiento || '',
+                    this.formData.genero || '',
+                    this.formData.departamento || '',
+                    this.formData.municipio || '',
+                    this.formData.direccion || '',
+                    this.formData.zona || '',
+                    this.formData.aldea || '',
+                    this.formData.latitud || '',
+                    this.formData.longitud || '',
+                    this.formData.tipoVivienda || '',
+                    this.formData.materialParedes || '',
+                    this.formData.materialTecho || '',
+                    this.formData.materialPiso || '',
+                    this.formData.numeroHabitaciones || '',
+                    this.formData.numeroBanos || '',
+                    Array.isArray(this.formData.servicios) ? this.formData.servicios.join(';') : '',
+                    this.formData.condicionVivienda || '',
+                    this.formData.observaciones || '',
+                    this.formData.recomendaciones || '',
+                    this.formData.fechaVisita || '',
+                    this.formData.verificador || '',
+                    this.photos.length,
+                    this.sketchData ? 'Sí' : 'No',
+                    this.signatureData ? 'Sí' : 'No'
+                ];
+
+                const csvContent = [
+                    headers.join(','),
+                    csvRow.map(field => `"${field}"`).join(',')
+                ].join('\n');
+
+                const blob = new Blob([csvContent], {
+                    type: 'text/csv;charset=utf-8'
+                });
+                
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `formulario_visita_${new Date().getTime()}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        // Initialize app
+        const app = new VisitFormApp();
+
+        // Make removePhoto available globally for onclick handlers
+        window.removePhoto = (index) => app.removePhoto(index);
+
+        // Funciones para campos dinámicos
+        function agregarProveedor() {
+            const container = document.getElementById('proveedoresContainer');
+            const div = document.createElement('div');
+            div.className = 'proveedor-item dynamic-item';
+            div.innerHTML = `
+                <div class="form-grid two-columns">
+                    <input type="text" name="proveedor[]" placeholder="Nombre del proveedor" maxlength="100">
+                    <div class="dynamic-buttons">
+                        <input type="number" name="montoProveedor[]" placeholder="Monto Q" min="0" step="0.01">
+                        <button type="button" class="btn btn-danger" onclick="eliminarElemento(this)">❌</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function agregarMobiliario() {
+            const container = document.getElementById('mobiliarioContainer');
+            const div = document.createElement('div');
+            div.className = 'mobiliario-item dynamic-item';
+            div.innerHTML = `
+                <div class="form-grid two-columns">
+                    <input type="text" name="mobiliario[]" placeholder="Descripción" maxlength="100">
+                    <div class="dynamic-buttons">
+                        <input type="number" name="valorMobiliario[]" placeholder="Valor Q" min="0" step="0.01">
+                        <button type="button" class="btn btn-danger" onclick="eliminarElemento(this)">❌</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function agregarMercaderia() {
+            const container = document.getElementById('mercaderiaContainer');
+            const div = document.createElement('div');
+            div.className = 'mercaderia-item dynamic-item';
+            div.innerHTML = `
+                <div class="form-grid two-columns">
+                    <input type="text" name="mercaderia[]" placeholder="Descripción" maxlength="100">
+                    <div class="dynamic-buttons">
+                        <input type="number" name="valorMercaderia[]" placeholder="Valor Q" min="0" step="0.01">
+                        <button type="button" class="btn btn-danger" onclick="eliminarElemento(this)">❌</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function agregarInventario() {
+            const container = document.getElementById('inventarioContainer');
+            const div = document.createElement('div');
+            div.className = 'inventario-item dynamic-item';
+            div.innerHTML = `
+                <div class="form-grid" style="grid-template-columns: 2fr 1fr 1fr 1fr 1fr 60px;">
+                    <input type="text" name="productoDescripcion[]" placeholder="Descripción del Producto" maxlength="100">
+                    <input type="number" name="productoCantidad[]" placeholder="Cantidad" min="0" onchange="calcularTotalVenta(this)">
+                    <input type="number" name="productoCompra[]" placeholder="Valor Compra Q" min="0" step="0.01">
+                    <input type="number" name="productoVenta[]" placeholder="Precio Venta Q" min="0" step="0.01" onchange="calcularTotalVenta(this)">
+                    <input type="number" name="productoTotalVenta[]" placeholder="Total Venta Q" readonly>
+                    <button type="button" class="btn btn-danger" onclick="eliminarElemento(this)">❌</button>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function agregarOtrosGastos() {
+            const container = document.getElementById('otrosGastosContainer');
+            const div = document.createElement('div');
+            div.className = 'otros-gastos-item dynamic-item';
+            div.innerHTML = `
+                <div class="form-grid two-columns">
+                    <input type="text" name="descripcionGasto[]" placeholder="Descripción" maxlength="100">
+                    <div class="dynamic-buttons">
+                        <input type="number" name="montoGasto[]" placeholder="Monto Q" min="0" step="0.01" onchange="calcularTotalCostos()">
+                        <button type="button" class="btn btn-danger" onclick="eliminarElemento(this)">❌</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function eliminarElemento(button) {
+            const item = button.closest('.proveedor-item, .mobiliario-item, .mercaderia-item, .inventario-item, .otros-gastos-item');
+            item.remove();
+            calcularTotalCostos();
+        }
+
+        function calcularTotalVenta(element) {
+            const row = element.closest('.inventario-item');
+            const cantidad = parseFloat(row.querySelector('input[name="productoCantidad[]"]').value) || 0;
+            const precioVenta = parseFloat(row.querySelector('input[name="productoVenta[]"]').value) || 0;
+            const totalVenta = cantidad * precioVenta;
+            row.querySelector('input[name="productoTotalVenta[]"]').value = totalVenta.toFixed(2);
+            calcularResumenFinanciero();
+        }
+
+        function calcularTotalCostos() {
+            // Calcular total de costos fijos
+            const costoAgua = parseFloat(document.getElementById('costoAgua').value) || 0;
+            const costoLuz = parseFloat(document.getElementById('costoLuz').value) || 0;
+            const costoAlquiler = parseFloat(document.getElementById('costoAlquiler').value) || 0;
+            const costoTelefono = parseFloat(document.getElementById('costoTelefono').value) || 0;
+            const costoBasura = parseFloat(document.getElementById('costoBasura').value) || 0;
+            
+            const totalCostosFijos = costoAgua + costoLuz + costoAlquiler + costoTelefono + costoBasura;
+            document.getElementById('totalCostosFijos').value = totalCostosFijos.toFixed(2);
+            
+            calcularResumenFinanciero();
+        }
+
+        function calcularResumenFinanciero() {
+            // Calcular total de ventas
+            let totalVentas = 0;
+            document.querySelectorAll('input[name="productoTotalVenta[]"]').forEach(input => {
+                totalVentas += parseFloat(input.value) || 0;
+            });
+            document.getElementById('totalVentasMes').value = totalVentas.toFixed(2);
+            
+            // Calcular costo total (costos fijos + otros gastos)
+            const totalCostosFijos = parseFloat(document.getElementById('totalCostosFijos').value) || 0;
+            let otrosGastos = 0;
+            document.querySelectorAll('input[name="montoGasto[]"]').forEach(input => {
+                otrosGastos += parseFloat(input.value) || 0;
+            });
+            
+            const costoTotal = totalCostosFijos + otrosGastos;
+            document.getElementById('costoTotalMes').value = costoTotal.toFixed(2);
+            
+            // Calcular utilidad neta
+            const utilidadNeta = totalVentas - costoTotal;
+            document.getElementById('utilidadNeta').value = utilidadNeta.toFixed(2);
+        }
+
+        // Event listeners para cálculos automáticos
+        document.addEventListener('DOMContentLoaded', function() {
+            // Costos fijos
+            ['costoAgua', 'costoLuz', 'costoAlquiler', 'costoTelefono', 'costoBasura'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', calcularTotalCostos);
+                }
+            });
+        });
+
+        // Hacer las funciones disponibles globalmente
+        window.agregarProveedor = agregarProveedor;
+        window.agregarMobiliario = agregarMobiliario;
+        window.agregarMercaderia = agregarMercaderia;
+        window.agregarInventario = agregarInventario;
+        window.agregarOtrosGastos = agregarOtrosGastos;
+        window.eliminarElemento = eliminarElemento;
+        window.calcularTotalVenta = calcularTotalVenta;
+        window.calcularTotalCostos = calcularTotalCostos;
+    </script>
+</body>
+</html>
