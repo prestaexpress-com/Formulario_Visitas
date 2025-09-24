@@ -3449,7 +3449,6 @@
             });
             
             doc.text(`Documento generado el ${fecha}`, margin, yPosition);
-            doc.text('Sistema de Verificación de Cobros v2.0', pageWidth - margin, yPosition, { align: 'right' });
             
             // Banner inferior
             doc.setFillColor(255, 101, 0);
@@ -3558,7 +3557,7 @@
                         // textX_pos: Más alto = más a la derecha, más bajo = más a la izquierda
                         // textY_pos: Más alto = más abajo, más bajo = más arriba
                         const textX_pos = 63;  // 📍 CAMBIA ESTE VALOR: posición horizontal (en mm)
-                        const textY_pos = 118; // 📍 CAMBIA ESTE VALOR: posición vertical (en mm)
+                        const textY_pos = 112; // 📍 CAMBIA ESTE VALOR: posición vertical (en mm)
                         
                         console.log(`🎯 Agregando nombre en posición: X=${textX_pos}, Y=${textY_pos}`);
                         
@@ -3582,7 +3581,7 @@
                         // ⚙️ CONFIGURACIÓN DE POSICIÓN DE LA FECHA ⚙️
                         // Puedes ajustar estos valores para mover la fecha:
                         const fechaX_pos = 46;  // 📍 CAMBIA ESTE VALOR: posición horizontal de fecha (en mm)
-                        const fechaY_pos = 183; // 📍 CAMBIA ESTE VALOR: posición vertical de fecha (en mm)
+                        const fechaY_pos = 175; // 📍 CAMBIA ESTE VALOR: posición vertical de fecha (en mm)
                         
                         console.log(`📅 Agregando fecha en posición: X=${fechaX_pos}, Y=${fechaY_pos}`);
                         
@@ -3621,7 +3620,7 @@
                             // ⚙️ CONFIGURACIÓN DE POSICIÓN DE LA FIRMA ⚙️
                             // Puedes ajustar estos valores para mover la firma:
                             const firmaX_pos = 39;  // 📍 CAMBIA ESTE VALOR: posición horizontal de firma (en mm)
-                            const firmaY_pos = 191;  // 📍 CAMBIA ESTE VALOR: posición vertical de firma (en mm)
+                            const firmaY_pos = 180;  // 📍 CAMBIA ESTE VALOR: posición vertical de firma (en mm)
                             const firmaAncho = 40;   // 📍 CAMBIA ESTE VALOR: ancho de la firma (en mm)
                             const firmaAlto = 20;    // 📍 CAMBIA ESTE VALOR: alto de la firma (en mm)
                             
@@ -3636,6 +3635,32 @@
                         }
                     } else {
                         console.log('⚠️ No se encontró canvas de firma del cliente');
+                    }
+
+                    // 🆔 AGREGAR DPI/CUI SOBREPUESTO
+                    const cuiPropietario = document.getElementById('cui')?.value;
+                    if (cuiPropietario) {
+                        // ⚙️ CONFIGURACIÓN DE POSICIÓN DEL DPI/CUI ⚙️
+                        // Puedes ajustar estos valores para mover el DPI:
+                        const dpiX_pos = 103;   // 📍 CAMBIA ESTE VALOR: posición horizontal del DPI (en mm)
+                        const dpiY_pos = 117;  // 📍 CAMBIA ESTE VALOR: posición vertical del DPI (en mm)
+                        
+                        console.log(`🆔 Agregando DPI/CUI en posición: X=${dpiX_pos}, Y=${dpiY_pos}`);
+                        
+                        // Formatear el CUI agregando guiones para mejor legibilidad
+                        const cuiFormateado = cuiPropietario.replace(/(\d{4})(\d{5})(\d{4})/, '$1-$2-$3');
+                        
+                        // Configurar el texto del DPI: mismo estilo que nombre y fecha
+                        doc.setFontSize(10);
+                        doc.setFont(undefined, 'bold');
+                        doc.setTextColor(0, 0, 0); // Texto negro
+                        
+                        // Agregar solo los números del DPI/CUI sobre la imagen
+                        doc.text(cuiFormateado, dpiX_pos, dpiY_pos);
+                        
+                        console.log('✅ DPI/CUI agregado exitosamente sobre la imagen:', cuiFormateado);
+                    } else {
+                        console.log('⚠️ No se encontró DPI/CUI en el formulario');
                     }
                     
                     // Finalizar y descargar PDF
@@ -3678,7 +3703,6 @@
                 });
                 
                 doc.text(`Documento generado el ${fecha}`, margin, footerY);
-                doc.text('Sistema de Verificación de Cobros v2.0', pageWidth - margin, footerY, { align: 'right' });
                 
                 // Banner inferior
                 doc.setFillColor(255, 101, 0);
@@ -3701,7 +3725,7 @@
             };
             
             // Cargar la imagen específica
-            img.src = 'https://live.staticflickr.com/65535/54809672184_4f5725c5de_b.jpg';
+            img.src = 'https://live.staticflickr.com/65535/54810012523_d9377c1fc4_b.jpg';
             
             // Timeout de 8 segundos para evitar esperas largas
             setTimeout(() => {
