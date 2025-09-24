@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -497,6 +498,19 @@
         .btn-danger:hover {
             background: #c82333;
             border-color: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: var(--white);
+            border: 2px solid #28a745;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            border-color: #218838;
+            box-shadow: var(--shadow-hover);
             transform: translateY(-1px);
         }
 
@@ -1596,6 +1610,9 @@
                 <button type="submit" class="btn btn-primary" id="submitBtn" style="display: none;">
                     <span>✓</span> Enviar Formulario
                 </button>
+                <button type="button" class="btn btn-success" id="pdfBtn" style="display: none;" onclick="generarPDF()">
+                    <span>📄</span> Descargar PDF
+                </button>
             </div>
         </form>
     </div>
@@ -2214,6 +2231,7 @@
                 const prevBtn = document.getElementById('prevBtn');
                 const nextBtn = document.getElementById('nextBtn');
                 const submitBtn = document.getElementById('submitBtn');
+                const pdfBtn = document.getElementById('pdfBtn');
 
                 if (this.currentStep === 1) {
                     prevBtn.style.display = 'none';
@@ -2224,9 +2242,11 @@
                 if (this.currentStep === this.totalSteps) {
                     nextBtn.style.display = 'none';
                     submitBtn.style.display = 'flex';
+                    pdfBtn.style.display = 'flex';
                 } else {
                     nextBtn.style.display = 'flex';
                     submitBtn.style.display = 'none';
+                    pdfBtn.style.display = 'none';
                 }
             }
 
@@ -2532,6 +2552,7 @@
 
         // Initialize app
         const app = new VisitFormApp();
+        window.app = app; // Hacer la instancia disponible globalmente
 
         // Make removePhoto available globally for onclick handlers
         window.removePhoto = (index) => app.removePhoto(index);
@@ -2690,6 +2711,770 @@
         window.eliminarElemento = eliminarElemento;
         window.calcularTotalVenta = calcularTotalVenta;
         window.calcularTotalCostos = calcularTotalCostos;
+
+        // Función para generar PDF
+        async function generarPDF() {
+            // Debug: mostrar información capturada
+            console.log('Generando PDF...');
+            console.log('Propietario:', document.getElementById('nombrePropietario')?.value);
+            console.log('CUI:', document.getElementById('cui')?.value);
+            console.log('Teléfono:', document.getElementById('telefonoCelular')?.value);
+            console.log('Monto:', document.getElementById('montoSolicitado')?.value);
+            console.log('Fotos en DOM:', document.querySelectorAll('#photoPreview img').length);
+            console.log('Fotos en app:', window.app?.photos?.length || 0);
+            
+            // Verificar que todos los campos principales tengan valor
+            const camposRequeridos = [
+                'nombrePropietario', 'cui', 'telefonoCelular', 'montoSolicitado', 
+                'direccion', 'nombreNegocio', 'giroNegocio'
+            ];
+            
+            console.log('Verificación de campos:');
+            camposRequeridos.forEach(campo => {
+                const elemento = document.getElementById(campo);
+                const valor = elemento?.value || '';
+                console.log(`${campo}: '${valor}' (elemento existe: ${!!elemento})`);
+            });
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            
+            // Configuración del documento
+            const pageWidth = 210;
+            const pageHeight = 297;
+            const margin = 15;
+            const contentWidth = pageWidth - (margin * 2);
+            let yPosition = margin;
+            
+            // Función auxiliar para agregar texto con salto de línea automático
+            function addText(text, x, y, maxWidth, fontSize = 10, fontStyle = 'normal') {
+                doc.setFontSize(fontSize);
+                doc.setFont(undefined, fontStyle);
+                
+                if (typeof text !== 'string') text = String(text || '');
+                
+                const lines = doc.splitTextToSize(text, maxWidth);
+                doc.text(lines, x, y);
+                return y + (lines.length * fontSize * 0.4);
+            }
+            
+            // Función para agregar una nueva página si es necesario
+            function checkPage(requiredSpace) {
+                if (yPosition + requiredSpace > pageHeight - margin - 20) {
+                    doc.addPage();
+                    yPosition = margin;
+                }
+            }
+            
+            // Funciones para obtener datos dinámicos
+            function getInventarioInfo() {
+                const productos = [];
+                document.querySelectorAll('.inventario-item').forEach(item => {
+                    const descripcion = item.querySelector('input[name="productoDescripcion[]"]')?.value;
+                    const cantidad = item.querySelector('input[name="productoCantidad[]"]')?.value;
+                    const compra = item.querySelector('input[name="productoCompra[]"]')?.value;
+                    const venta = item.querySelector('input[name="productoVenta[]"]')?.value;
+                    if (descripcion) {
+                        productos.push({ descripcion, cantidad: cantidad || 0, compra: compra || 0, venta: venta || 0 });
+                    }
+                });
+                return productos;
+            }
+            
+            function getProveedoresInfo() {
+                const proveedores = [];
+                document.querySelectorAll('.proveedor-item').forEach(item => {
+                    const nombre = item.querySelector('input[name="proveedor[]"]')?.value;
+                    const monto = item.querySelector('input[name="montoProveedor[]"]')?.value;
+                    if (nombre) {
+                        proveedores.push({ nombre, monto: monto || 0 });
+                    }
+                });
+                return proveedores;
+            }
+            
+            function getMobiliarioInfo() {
+                const mobiliario = [];
+                document.querySelectorAll('.mobiliario-item').forEach(item => {
+                    const descripcion = item.querySelector('input[name="mobiliario[]"]')?.value;
+                    const valor = item.querySelector('input[name="valorMobiliario[]"]')?.value;
+                    if (descripcion) {
+                        mobiliario.push({ descripcion, valor: valor || 0 });
+                    }
+                });
+                return mobiliario;
+            }
+            
+            function getMercaderiaInfo() {
+                const mercaderia = [];
+                document.querySelectorAll('.mercaderia-item').forEach(item => {
+                    const descripcion = item.querySelector('input[name="mercaderia[]"]')?.value;
+                    const valor = item.querySelector('input[name="valorMercaderia[]"]')?.value;
+                    if (descripcion) {
+                        mercaderia.push({ descripcion, valor: valor || 0 });
+                    }
+                });
+                return mercaderia;
+            }
+            
+            function getOtrosGastosInfo() {
+                const gastos = [];
+                document.querySelectorAll('.otros-gastos-item').forEach(item => {
+                    const descripcion = item.querySelector('input[name="descripcionGasto[]"]')?.value;
+                    const monto = item.querySelector('input[name="montoGasto[]"]')?.value;
+                    if (descripcion) {
+                        gastos.push({ descripcion, monto: monto || 0 });
+                    }
+                });
+                return gastos;
+            }
+            
+            // Encabezado del documento con diseño elegante
+            doc.setFillColor(255, 101, 0);
+            doc.rect(0, 0, pageWidth, 30, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(18);
+            doc.setFont(undefined, 'bold');
+            doc.text('FORMULARIO DE VERIFICACIÓN', pageWidth / 2, 12, { align: 'center' });
+            doc.setFontSize(14);
+            doc.text('SISTEMA DE COBROS', pageWidth / 2, 22, { align: 'center' });
+            
+            // Línea decorativa
+            doc.setDrawColor(200, 200, 200);
+            doc.setLineWidth(0.5);
+            doc.line(margin, 32, pageWidth - margin, 32);
+            
+            yPosition = 40;
+            doc.setTextColor(0, 0, 0);
+            
+            // Información del cliente
+            checkPage(25);
+            doc.setFillColor(240, 240, 240);
+            doc.rect(margin, yPosition - 2, contentWidth, 6, 'F');
+            doc.setDrawColor(255, 101, 0);
+            doc.setLineWidth(2);
+            doc.line(margin, yPosition - 2, margin, yPosition + 4);
+            
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(255, 101, 0);
+            doc.text('INFORMACIÓN DEL CLIENTE', margin + 3, yPosition + 2);
+            yPosition += 8;
+            doc.setTextColor(0, 0, 0);
+            
+            // Obtener TODOS los datos del formulario al principio
+            const nombrePropietario = document.getElementById('nombrePropietario')?.value || '';
+            const personaAtiende = document.getElementById('personaAtiende')?.value || '';
+            const cui = document.getElementById('cui')?.value || '';
+            const telefono = document.getElementById('telefonoCelular')?.value || '';
+            const email = document.getElementById('emailContacto')?.value || '';
+            const direccion = document.getElementById('direccion')?.value || '';
+            const departamento = document.getElementById('departamento')?.value || '';
+            const municipio = document.getElementById('municipio')?.value || '';
+            const montoSolicitado = document.getElementById('montoSolicitado')?.value || '';
+            const parentesco = document.getElementById('parentesco')?.value || '';
+            const tiempoResidencia = document.getElementById('tiempoResidencia')?.value || '';
+            const contadorFisico = document.getElementById('contadorFisico')?.value || '';
+            const quienesViven = document.getElementById('quienesViven')?.value || '';
+            const dimensionesInmueble = document.getElementById('dimensionesInmueble')?.value || '';
+            const destinoCredito = document.getElementById('destinoCredito')?.value || '';
+            const formaAdquisicion = document.getElementById('formaAdquisicion')?.value || '';
+            
+            // Información laboral/empresa
+            const nombreEmpresa = document.getElementById('nombreEmpresa')?.value || '';
+            const direccionEmpresa = document.getElementById('direccionEmpresa')?.value || '';
+            const puestoTrabajo = document.getElementById('puestoTrabajo')?.value || '';
+            const telefonoEmpresa = document.getElementById('telefonoEmpresa')?.value || '';
+            
+            // Obtener servicios seleccionados
+            const serviciosDisponibles = [];
+            document.querySelectorAll('input[name="servicios"]:checked').forEach(cb => {
+                serviciosDisponibles.push(cb.value);
+            });
+            
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'normal');
+            yPosition = addText(`Propietario: ${nombrePropietario}`, margin, yPosition, contentWidth / 2, 8);
+            yPosition = addText(`Monto Solicitado: Q${montoSolicitado}`, margin + contentWidth / 2, yPosition - 3, contentWidth / 2, 8);
+            yPosition = addText(`Persona que Atiende: ${personaAtiende}`, margin, yPosition, contentWidth / 2, 8);
+            yPosition = addText(`CUI: ${cui}`, margin + contentWidth / 2, yPosition - 3, contentWidth / 2, 8);
+            yPosition = addText(`Parentesco: ${parentesco}`, margin, yPosition, contentWidth / 2, 8);
+            yPosition = addText(`Teléfono: ${telefono}`, margin + contentWidth / 2, yPosition - 3, contentWidth / 2, 8);
+            yPosition = addText(`Tiempo de Residencia: ${tiempoResidencia}`, margin, yPosition, contentWidth / 2, 8);
+            yPosition = addText(`Contador: ${contadorFisico}`, margin + contentWidth / 2, yPosition - 3, contentWidth / 2, 8);
+            yPosition = addText(`Dirección: ${direccion}`, margin, yPosition, contentWidth, 8);
+            yPosition = addText(`Dimensiones: ${dimensionesInmueble}`, margin, yPosition, contentWidth / 2, 8);
+            yPosition = addText(`Destino Crédito: ${destinoCredito}`, margin + contentWidth / 2, yPosition - 3, contentWidth / 2, 8);
+            yPosition = addText(`Forma Adquisición: ${formaAdquisicion}`, margin, yPosition, contentWidth, 8);
+            if (serviciosDisponibles.length > 0) {
+                yPosition = addText(`Servicios: ${serviciosDisponibles.join(', ')}`, margin, yPosition, contentWidth, 8);
+            }
+            if (quienesViven) {
+                yPosition = addText(`Quienes Viven: ${quienesViven}`, margin, yPosition, contentWidth, 8);
+            }
+            if (departamento) {
+                yPosition = addText(`Depto: ${departamento}`, margin, yPosition, contentWidth / 2, 8);
+            }
+            if (municipio) {
+                yPosition = addText(`Municipio: ${municipio}`, margin + contentWidth / 2, yPosition - 3, contentWidth / 2, 8);
+            }
+            yPosition += 5;
+            
+            // Información laboral si existe
+            if (nombreEmpresa || puestoTrabajo) {
+                checkPage(20);
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, yPosition - 2, contentWidth, 6, 'F');
+                doc.setDrawColor(255, 101, 0);
+                doc.setLineWidth(2);
+                doc.line(margin, yPosition - 2, margin, yPosition + 4);
+                
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(255, 101, 0);
+                doc.text('INFORMACIÓN LABORAL', margin + 3, yPosition + 2);
+                yPosition += 8;
+                doc.setTextColor(0, 0, 0);
+                
+                doc.setFontSize(8);
+                if (nombreEmpresa) {
+                    yPosition = addText(`Empresa: ${nombreEmpresa}`, margin, yPosition, contentWidth / 2, 8);
+                }
+                if (puestoTrabajo) {
+                    yPosition = addText(`Puesto: ${puestoTrabajo}`, margin + contentWidth / 2, yPosition - 3, contentWidth / 2, 8);
+                }
+                if (direccionEmpresa) {
+                    yPosition = addText(`Dirección Empresa: ${direccionEmpresa}`, margin, yPosition, contentWidth, 8);
+                }
+                if (telefonoEmpresa) {
+                    yPosition = addText(`Teléfono Empresa: ${telefonoEmpresa}`, margin, yPosition, contentWidth / 2, 8);
+                }
+                yPosition += 5;
+            }
+            
+            // Información de la vivienda
+            checkPage(20);
+            doc.setFillColor(240, 240, 240);
+            doc.rect(margin, yPosition - 2, contentWidth, 6, 'F');
+            doc.setDrawColor(255, 101, 0);
+            doc.setLineWidth(2);
+            doc.line(margin, yPosition - 2, margin, yPosition + 4);
+            
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(255, 101, 0);
+            doc.text('CARACTERÍSTICAS DE LA VIVIENDA', margin + 3, yPosition + 2);
+            yPosition += 8;
+            doc.setTextColor(0, 0, 0);
+            
+            const tipoVivienda = document.querySelector('input[name="tipoVivienda"]:checked')?.value || '';
+            const tipoTecho = document.querySelector('input[name="materialTecho"]:checked')?.value || '';
+            const tipoPared = document.querySelector('input[name="materialPared"]:checked')?.value || '';
+            const tipoPiso = document.querySelector('input[name="materialPiso"]:checked')?.value || '';
+            const habitaciones = document.getElementById('numeroHabitaciones')?.value || '';
+            const sanitarios = document.getElementById('numeroSanitarios')?.value || '';
+            const nivelVivienda = document.getElementById('nivelVivienda')?.value || '';
+            const condicionVivienda = document.getElementById('condicionVivienda')?.value || '';
+            
+            doc.setFontSize(8);
+            yPosition = addText(`Tipo: ${tipoVivienda}`, margin, yPosition, contentWidth / 3, 8);
+            yPosition = addText(`Habitaciones: ${habitaciones}`, margin + contentWidth / 3, yPosition - 3, contentWidth / 3, 8);
+            yPosition = addText(`Sanitarios: ${sanitarios}`, margin + (contentWidth * 2 / 3), yPosition - 3, contentWidth / 3, 8);
+            yPosition = addText(`Techo: ${tipoTecho}`, margin, yPosition, contentWidth / 2, 8);
+            yPosition = addText(`Pared: ${tipoPared}`, margin + contentWidth / 2, yPosition - 3, contentWidth / 2, 8);
+            yPosition = addText(`Piso: ${tipoPiso}`, margin, yPosition, contentWidth / 2, 8);
+            yPosition = addText(`Nivel: ${nivelVivienda}`, margin + contentWidth / 2, yPosition - 3, contentWidth / 2, 8);
+            yPosition = addText(`Condición: ${condicionVivienda}`, margin, yPosition, contentWidth, 8);
+            yPosition += 5;
+            
+            // Información del negocio
+            checkPage(20);
+            doc.setFillColor(240, 240, 240);
+            doc.rect(margin, yPosition - 2, contentWidth, 6, 'F');
+            doc.setDrawColor(255, 101, 0);
+            doc.setLineWidth(2);
+            doc.line(margin, yPosition - 2, margin, yPosition + 4);
+            
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(255, 101, 0);
+            doc.text('INFORMACIÓN DEL NEGOCIO', margin + 3, yPosition + 2);
+            yPosition += 8;
+            doc.setTextColor(0, 0, 0);
+            
+            const nombreNegocio = document.getElementById('nombreNegocio')?.value || '';
+            const giroNegocio = document.getElementById('giroNegocio')?.value || '';
+            const tipoLocal = document.querySelector('input[name="tipoLocal"]:checked')?.value || '';
+            const tiempoOperacion = document.getElementById('tiempoOperacion')?.value || '';
+            const numeroEmpleados = document.getElementById('numeroEmpleados')?.value || '';
+            const ingresosMensuales = document.getElementById('ingresosMensuales')?.value || '';
+            const direccionNegocio = document.getElementById('direccionNegocio')?.value || '';
+            const patenteComercio = document.getElementById('patenteComercio')?.value || '';
+            
+            doc.setFontSize(8);
+            yPosition = addText(`Nombre: ${nombreNegocio}`, margin, yPosition, contentWidth / 2, 8);
+            yPosition = addText(`Giro: ${giroNegocio}`, margin + contentWidth / 2, yPosition - 3, contentWidth / 2, 8);
+            yPosition = addText(`Tipo Local: ${tipoLocal}`, margin, yPosition, contentWidth / 2, 8);
+            yPosition = addText(`Patente: ${patenteComercio}`, margin + contentWidth / 2, yPosition - 3, contentWidth / 2, 8);
+            yPosition = addText(`Tiempo Operación: ${tiempoOperacion}`, margin, yPosition, contentWidth / 2, 8);
+            yPosition = addText(`Empleados: ${numeroEmpleados}`, margin + contentWidth / 2, yPosition - 3, contentWidth / 2, 8);
+            yPosition = addText(`Ingresos Mensuales: Q${ingresosMensuales}`, margin, yPosition, contentWidth / 2, 8);
+            if (direccionNegocio) {
+                yPosition = addText(`Dirección Negocio: ${direccionNegocio}`, margin, yPosition, contentWidth, 8);
+            }
+            
+            // Estado físico del negocio
+            const estadoInterior = document.querySelector('input[name="estadoFisicoInterior"]:checked')?.value || '';
+            const estadoExterior = document.querySelector('input[name="estadoFisicoExterior"]:checked')?.value || '';
+            
+            if (estadoInterior || estadoExterior) {
+                yPosition = addText(`Estado Interior: ${estadoInterior}`, margin, yPosition, contentWidth / 2, 8);
+                yPosition = addText(`Estado Exterior: ${estadoExterior}`, margin + contentWidth / 2, yPosition - 3, contentWidth / 2, 8);
+            }
+            yPosition += 5;
+            
+            // Resumen financiero
+            checkPage(20);
+            doc.setFillColor(240, 240, 240);
+            doc.rect(margin, yPosition - 2, contentWidth, 6, 'F');
+            doc.setDrawColor(255, 101, 0);
+            doc.setLineWidth(2);
+            doc.line(margin, yPosition - 2, margin, yPosition + 4);
+            
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(255, 101, 0);
+            doc.text('ANÁLISIS FINANCIERO', margin + 3, yPosition + 2);
+            yPosition += 8;
+            doc.setTextColor(0, 0, 0);
+            
+            const totalVentas = document.getElementById('totalVentasMes')?.value || '0';
+            const costoTotal = document.getElementById('costoTotalMes')?.value || '0';
+            const utilidadNeta = document.getElementById('utilidadNeta')?.value || '0';
+            const totalCostosFijos = document.getElementById('totalCostosFijos')?.value || '0';
+            
+            // Costos fijos individuales
+            const costoAgua = document.getElementById('costoAgua')?.value || '0';
+            const costoLuz = document.getElementById('costoLuz')?.value || '0';
+            const costoAlquiler = document.getElementById('costoAlquiler')?.value || '0';
+            const costoTelefono = document.getElementById('costoTelefono')?.value || '0';
+            const costoBasura = document.getElementById('costoBasura')?.value || '0';
+            
+            doc.setFontSize(8);
+            yPosition = addText(`Ventas Mensuales: Q ${totalVentas}`, margin, yPosition, contentWidth / 3, 8);
+            yPosition = addText(`Costos Totales: Q ${costoTotal}`, margin + contentWidth / 3, yPosition - 3, contentWidth / 3, 8);
+            yPosition = addText(`Utilidad Neta: Q ${utilidadNeta}`, margin + (contentWidth * 2 / 3), yPosition - 3, contentWidth / 3, 8);
+            
+            // Desglose de costos fijos si hay datos
+            if (parseFloat(totalCostosFijos) > 0) {
+                yPosition += 3;
+                doc.setFont(undefined, 'bold');
+                yPosition = addText('Desglose Costos Fijos:', margin, yPosition, contentWidth, 7, 'bold');
+                doc.setFont(undefined, 'normal');
+                doc.setFontSize(7);
+                yPosition = addText(`Agua: Q${costoAgua}`, margin, yPosition, contentWidth / 5, 7);
+                yPosition = addText(`Luz: Q${costoLuz}`, margin + contentWidth / 5, yPosition - 2.5, contentWidth / 5, 7);
+                yPosition = addText(`Alquiler: Q${costoAlquiler}`, margin + contentWidth * 2 / 5, yPosition - 2.5, contentWidth / 5, 7);
+                yPosition = addText(`Teléfono: Q${costoTelefono}`, margin + contentWidth * 3 / 5, yPosition - 2.5, contentWidth / 5, 7);
+                yPosition = addText(`Basura: Q${costoBasura}`, margin + contentWidth * 4 / 5, yPosition - 2.5, contentWidth / 5, 7);
+            }
+            yPosition += 5;
+            
+            // Obtener información detallada del negocio
+            const productos = getInventarioInfo();
+            const proveedores = getProveedoresInfo();
+            const mobiliario = getMobiliarioInfo();
+            const mercaderia = getMercaderiaInfo();
+            const otrosGastos = getOtrosGastosInfo();
+            
+            // Sección de Inventario
+            if (productos.length > 0) {
+                checkPage(30);
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, yPosition - 2, contentWidth, 6, 'F');
+                doc.setDrawColor(255, 101, 0);
+                doc.setLineWidth(2);
+                doc.line(margin, yPosition - 2, margin, yPosition + 4);
+                
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(255, 101, 0);
+                doc.text('INVENTARIO', margin + 3, yPosition + 2);
+                yPosition += 8;
+                doc.setTextColor(0, 0, 0);
+                
+                // Encabezados de tabla
+                doc.setFontSize(7);
+                doc.setFont(undefined, 'bold');
+                doc.text('Descripción', margin, yPosition);
+                doc.text('Cant.', margin + 60, yPosition);
+                doc.text('Compra', margin + 80, yPosition);
+                doc.text('Venta', margin + 105, yPosition);
+                doc.text('Total', margin + 130, yPosition);
+                yPosition += 4;
+                
+                doc.setFont(undefined, 'normal');
+                productos.slice(0, 8).forEach(producto => {
+                    const total = (parseFloat(producto.cantidad) || 0) * (parseFloat(producto.venta) || 0);
+                    doc.text(producto.descripcion.substring(0, 25), margin, yPosition);
+                    doc.text(String(producto.cantidad), margin + 60, yPosition);
+                    doc.text(`Q${producto.compra}`, margin + 80, yPosition);
+                    doc.text(`Q${producto.venta}`, margin + 105, yPosition);
+                    doc.text(`Q${total.toFixed(2)}`, margin + 130, yPosition);
+                    yPosition += 3;
+                });
+                yPosition += 5;
+            }
+            
+            // Sección de Proveedores
+            if (proveedores.length > 0) {
+                checkPage(20);
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, yPosition - 2, contentWidth, 6, 'F');
+                doc.setDrawColor(255, 101, 0);
+                doc.setLineWidth(2);
+                doc.line(margin, yPosition - 2, margin, yPosition + 4);
+                
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(255, 101, 0);
+                doc.text('PROVEEDORES', margin + 3, yPosition + 2);
+                yPosition += 8;
+                doc.setTextColor(0, 0, 0);
+                
+                doc.setFontSize(8);
+                proveedores.slice(0, 5).forEach(proveedor => {
+                    yPosition = addText(`• ${proveedor.nombre}: Q${proveedor.monto}`, margin, yPosition, contentWidth, 7);
+                });
+                yPosition += 5;
+            }
+            
+            // Sección de Mobiliario y Equipo
+            if (mobiliario.length > 0) {
+                checkPage(20);
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, yPosition - 2, contentWidth, 6, 'F');
+                doc.setDrawColor(255, 101, 0);
+                doc.setLineWidth(2);
+                doc.line(margin, yPosition - 2, margin, yPosition + 4);
+                
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(255, 101, 0);
+                doc.text('MOBILIARIO Y EQUIPO', margin + 3, yPosition + 2);
+                yPosition += 8;
+                doc.setTextColor(0, 0, 0);
+                
+                doc.setFontSize(8);
+                mobiliario.slice(0, 5).forEach(item => {
+                    yPosition = addText(`• ${item.descripcion}: Q${item.valor}`, margin, yPosition, contentWidth, 7);
+                });
+                yPosition += 5;
+            }
+            
+            // Sección de Mercadería
+            if (mercaderia.length > 0) {
+                checkPage(20);
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, yPosition - 2, contentWidth, 6, 'F');
+                doc.setDrawColor(255, 101, 0);
+                doc.setLineWidth(2);
+                doc.line(margin, yPosition - 2, margin, yPosition + 4);
+                
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(255, 101, 0);
+                doc.text('MERCADERÍA EN NEGOCIO', margin + 3, yPosition + 2);
+                yPosition += 8;
+                doc.setTextColor(0, 0, 0);
+                
+                doc.setFontSize(8);
+                mercaderia.slice(0, 5).forEach(item => {
+                    yPosition = addText(`• ${item.descripcion}: Q${item.valor}`, margin, yPosition, contentWidth, 7);
+                });
+                yPosition += 5;
+            }
+            
+            // Sección de Otros Gastos
+            if (otrosGastos.length > 0) {
+                checkPage(15);
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, yPosition - 2, contentWidth, 6, 'F');
+                doc.setDrawColor(255, 101, 0);
+                doc.setLineWidth(2);
+                doc.line(margin, yPosition - 2, margin, yPosition + 4);
+                
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(255, 101, 0);
+                doc.text('OTROS GASTOS', margin + 3, yPosition + 2);
+                yPosition += 8;
+                doc.setTextColor(0, 0, 0);
+                
+                doc.setFontSize(8);
+                otrosGastos.slice(0, 5).forEach(gasto => {
+                    yPosition = addText(`• ${gasto.descripcion}: Q${gasto.monto}`, margin, yPosition, contentWidth, 7);
+                });
+                yPosition += 5;
+            }
+            
+            // Agregar fotografías si existen
+            const fotos = document.querySelectorAll('#photoPreview img');
+            // También intentar obtener de la instancia de la app si está disponible
+            const appInstance = window.app;
+            const fotosApp = (appInstance && appInstance.photos) ? appInstance.photos : [];
+            
+            if (fotos.length > 0 || fotosApp.length > 0) {
+                checkPage(30);
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, yPosition - 2, contentWidth, 6, 'F');
+                doc.setDrawColor(255, 101, 0);
+                doc.setLineWidth(2);
+                doc.line(margin, yPosition - 2, margin, yPosition + 4);
+                
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(255, 101, 0);
+                doc.text('EVIDENCIA FOTOGRÁFICA', margin + 3, yPosition + 2);
+                yPosition += 10;
+                doc.setTextColor(0, 0, 0);
+                
+                let xPhoto = margin;
+                let photoCount = 0;
+                const maxPhotosPerRow = 4;
+                const photoWidth = (contentWidth - 30) / maxPhotosPerRow;
+                const photoHeight = photoWidth * 0.6;
+                
+                // Procesar fotos del DOM
+                for (let foto of fotos) {
+                    if (photoCount % maxPhotosPerRow === 0 && photoCount > 0) {
+                        yPosition += photoHeight + 5;
+                        xPhoto = margin;
+                        checkPage(photoHeight + 10);
+                    }
+                    
+                    try {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        canvas.width = foto.naturalWidth || foto.width;
+                        canvas.height = foto.naturalHeight || foto.height;
+                        ctx.drawImage(foto, 0, 0);
+                        const imgData = canvas.toDataURL('image/jpeg', 0.7);
+                        
+                        doc.addImage(imgData, 'JPEG', xPhoto, yPosition, photoWidth, photoHeight);
+                        xPhoto += photoWidth + 5;
+                        photoCount++;
+                    } catch (e) {
+                        console.error('Error al procesar imagen del DOM:', e);
+                    }
+                }
+                
+                // Procesar fotos de la app
+                for (let fotoData of fotosApp) {
+                    if (photoCount % maxPhotosPerRow === 0 && photoCount > 0) {
+                        yPosition += photoHeight + 5;
+                        xPhoto = margin;
+                        checkPage(photoHeight + 10);
+                    }
+                    
+                    try {
+                        const imgData = fotoData.data || fotoData;
+                        doc.addImage(imgData, 'JPEG', xPhoto, yPosition, photoWidth, photoHeight);
+                        xPhoto += photoWidth + 5;
+                        photoCount++;
+                    } catch (e) {
+                        console.error('Error al procesar imagen de la app:', e);
+                    }
+                }
+                
+                if (photoCount > 0) {
+                    yPosition += photoHeight + 8;
+                }
+            }
+            
+            // Agregar croquis si existen
+            const canvasVivienda = document.getElementById('sketchCanvas');
+            const canvasUbicacion = document.getElementById('locationCanvas');
+            
+            if (canvasVivienda || canvasUbicacion) {
+                checkPage(50);
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, yPosition - 2, contentWidth, 6, 'F');
+                doc.setDrawColor(255, 101, 0);
+                doc.setLineWidth(2);
+                doc.line(margin, yPosition - 2, margin, yPosition + 4);
+                
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(255, 101, 0);
+                doc.text('CROQUIS Y DIAGRAMAS', margin + 3, yPosition + 2);
+                yPosition += 10;
+                doc.setTextColor(0, 0, 0);
+                
+                if (canvasVivienda && canvasUbicacion) {
+                    // Ambos croquis lado a lado
+                    try {
+                        const imgDataVivienda = canvasVivienda.toDataURL('image/png');
+                        const imgDataUbicacion = canvasUbicacion.toDataURL('image/png');
+                        
+                        doc.setFontSize(9);
+                        doc.setFont(undefined, 'bold');
+                        doc.text('VIVIENDA', margin + 30, yPosition);
+                        doc.text('UBICACIÓN', margin + 105, yPosition);
+                        
+                        doc.addImage(imgDataVivienda, 'PNG', margin, yPosition + 2, 70, 45);
+                        doc.addImage(imgDataUbicacion, 'PNG', margin + 75, yPosition + 2, 70, 45);
+                        yPosition += 50;
+                    } catch (e) {
+                        console.error('Error al procesar croquis:', e);
+                    }
+                } else if (canvasVivienda) {
+                    try {
+                        const imgData = canvasVivienda.toDataURL('image/png');
+                        doc.setFontSize(9);
+                        doc.setFont(undefined, 'bold');
+                        doc.text('CROQUIS DE VIVIENDA', margin, yPosition);
+                        doc.addImage(imgData, 'PNG', margin, yPosition + 2, 80, 50);
+                        yPosition += 55;
+                    } catch (e) {
+                        console.error('Error al procesar croquis de vivienda:', e);
+                    }
+                } else if (canvasUbicacion) {
+                    try {
+                        const imgData = canvasUbicacion.toDataURL('image/png');
+                        doc.setFontSize(9);
+                        doc.setFont(undefined, 'bold');
+                        doc.text('CROQUIS DE UBICACIÓN', margin, yPosition);
+                        doc.addImage(imgData, 'PNG', margin, yPosition + 2, 80, 50);
+                        yPosition += 55;
+                    } catch (e) {
+                        console.error('Error al procesar croquis de ubicación:', e);
+                    }
+                }
+            }
+            
+            // Agregar firmas si existen
+            const canvasFirma = document.getElementById('signatureCanvas');
+            const canvasFirmaVerificador = document.getElementById('verifierSignatureCanvas');
+            
+            if (canvasFirma || canvasFirmaVerificador) {
+                checkPage(40);
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, yPosition - 2, contentWidth, 6, 'F');
+                doc.setDrawColor(255, 101, 0);
+                doc.setLineWidth(2);
+                doc.line(margin, yPosition - 2, margin, yPosition + 4);
+                
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(255, 101, 0);
+                doc.text('FIRMAS DE AUTORIZACIÓN', margin + 3, yPosition + 2);
+                yPosition += 10;
+                doc.setTextColor(0, 0, 0);
+                
+                if (canvasFirma && canvasFirmaVerificador) {
+                    // Ambas firmas lado a lado
+                    try {
+                        doc.setFontSize(8);
+                        doc.setFont(undefined, 'bold');
+                        doc.text('CLIENTE', margin + 25, yPosition);
+                        doc.text('VERIFICADOR', margin + 105, yPosition);
+                        
+                        const imgData = canvasFirma.toDataURL('image/png');
+                        const imgDataVerificador = canvasFirmaVerificador.toDataURL('image/png');
+                        
+                        doc.addImage(imgData, 'PNG', margin, yPosition + 2, 70, 25);
+                        doc.addImage(imgDataVerificador, 'PNG', margin + 75, yPosition + 2, 70, 25);
+                        
+                        // Líneas para nombres
+                        doc.setDrawColor(150, 150, 150);
+                        doc.setLineWidth(0.5);
+                        doc.line(margin, yPosition + 30, margin + 65, yPosition + 30);
+                        doc.line(margin + 75, yPosition + 30, margin + 140, yPosition + 30);
+                        
+                        yPosition += 35;
+                    } catch (e) {
+                        console.error('Error al procesar firmas:', e);
+                    }
+                } else if (canvasFirma) {
+                    try {
+                        doc.setFontSize(8);
+                        doc.setFont(undefined, 'bold');
+                        doc.text('FIRMA DEL CLIENTE', margin, yPosition);
+                        const imgData = canvasFirma.toDataURL('image/png');
+                        doc.addImage(imgData, 'PNG', margin, yPosition + 2, 80, 30);
+                        doc.setDrawColor(150, 150, 150);
+                        doc.setLineWidth(0.5);
+                        doc.line(margin, yPosition + 35, margin + 75, yPosition + 35);
+                        yPosition += 40;
+                    } catch (e) {
+                        console.error('Error al procesar firma del cliente:', e);
+                    }
+                } else if (canvasFirmaVerificador) {
+                    try {
+                        doc.setFontSize(8);
+                        doc.setFont(undefined, 'bold');
+                        doc.text('FIRMA DEL VERIFICADOR', margin, yPosition);
+                        const imgDataVerificador = canvasFirmaVerificador.toDataURL('image/png');
+                        doc.addImage(imgDataVerificador, 'PNG', margin, yPosition + 2, 80, 30);
+                        doc.setDrawColor(150, 150, 150);
+                        doc.setLineWidth(0.5);
+                        doc.line(margin, yPosition + 35, margin + 75, yPosition + 35);
+                        yPosition += 40;
+                    } catch (e) {
+                        console.error('Error al procesar firma del verificador:', e);
+                    }
+                }
+            }
+            
+            // Pie de página profesional
+            checkPage(25);
+            yPosition = Math.max(yPosition + 10, pageHeight - 35);
+            
+            // Línea decorativa superior
+            doc.setDrawColor(200, 200, 200);
+            doc.setLineWidth(0.5);
+            doc.line(margin, yPosition - 5, pageWidth - margin, yPosition - 5);
+            
+            // Información adicional
+            doc.setFontSize(7);
+            doc.setTextColor(100, 100, 100);
+            const fecha = new Date().toLocaleDateString('es-GT', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            doc.text(`Documento generado el ${fecha}`, margin, yPosition);
+            doc.text('Sistema de Verificación de Cobros v2.0', pageWidth - margin, yPosition, { align: 'right' });
+            
+            // Banner inferior
+            doc.setFillColor(255, 101, 0);
+            doc.rect(0, pageHeight - 15, pageWidth, 15, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'bold');
+            doc.text('DOCUMENTO OFICIAL DE VERIFICACIÓN', pageWidth / 2, pageHeight - 7, { align: 'center' });
+            doc.setFontSize(6);
+            doc.text('Este documento es válido únicamente con las firmas correspondientes', pageWidth / 2, pageHeight - 3, { align: 'center' });
+            
+            // Descargar el PDF
+            const nombreArchivo = `Verificacion_Cobros_${nombrePropietario.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.pdf`;
+            doc.save(nombreArchivo);
+            
+            // Confirmación
+            alert('PDF generado exitosamente');
+        }
+        
+        // Hacer la función disponible globalmente
+        window.generarPDF = generarPDF;
     </script>
+    
+    <!-- Librerías para generar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
 </html>
