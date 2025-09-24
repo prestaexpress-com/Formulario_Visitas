@@ -3462,12 +3462,254 @@
             doc.setFontSize(6);
             doc.text('Este documento es válido únicamente con las firmas correspondientes', pageWidth / 2, pageHeight - 3, { align: 'center' });
             
-            // Descargar el PDF
-            const nombreArchivo = `Verificacion_Cobros_${nombrePropietario.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.pdf`;
-            doc.save(nombreArchivo);
+            // Agregar nueva página con imagen de Flickr solamente
+            doc.addPage();
+            yPosition = margin;
             
-            // Confirmación
-            alert('PDF generado exitosamente');
+            // Encabezado de la página adicional
+            doc.setFillColor(255, 101, 0);
+            doc.rect(0, 0, pageWidth, 30, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(18);
+            doc.setFont(undefined, 'bold');
+            doc.text('DOCUMENTO ANEXO', pageWidth / 2, 12, { align: 'center' });
+            doc.setFontSize(14);
+            doc.text('INFORMACIÓN COMPLEMENTARIA', pageWidth / 2, 22, { align: 'center' });
+            
+            // Sin línea decorativa - imagen directamente en la posición indicada
+            yPosition = 32;
+            doc.setTextColor(0, 0, 0);
+            
+            // Solo cargar la imagen específica de Flickr
+            console.log('Cargando ÚNICAMENTE la imagen de Flickr...');
+            
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            
+            img.onload = function() {
+                try {
+                    console.log('✓ Imagen de Flickr cargada exitosamente');
+                    
+                    // Crear canvas para convertir la imagen
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Configurar canvas con las dimensiones de la imagen
+                    canvas.width = this.naturalWidth || this.width;
+                    canvas.height = this.naturalHeight || this.height;
+                    
+                    // Dibujar la imagen en el canvas
+                    ctx.drawImage(this, 0, 0);
+                    
+                    // Convertir a base64
+                    const imagenBase64 = canvas.toDataURL('image/jpeg', 0.8);
+                    
+                    // Calcular dimensiones para que ocupe toda la hoja
+                    const imgWidth = pageWidth; // Ancho completo de la página
+                    const imgHeight = pageHeight - 80; // Alto disponible desde donde estaba la línea de referencia
+                    
+                    // Posicionar desde el borde izquierdo, exactamente donde estaba la línea de referencia
+                    const xPos = 0;
+                    const yPos = 32; // Exactamente donde estaba la línea roja de referencia
+                    
+                    // Agregar al PDF ocupando toda la página
+                    doc.addImage(imagenBase64, 'JPEG', xPos, yPos, imgWidth, imgHeight);
+                    
+                    console.log('✓ Imagen de Flickr agregada al PDF');
+                    
+                    // Obtener el nombre del propietario
+                    const nombrePropietario = document.getElementById('nombrePropietario')?.value || '';
+                    
+                    if (nombrePropietario) {
+                        console.log('📝 Agregando nombre del propietario:', nombrePropietario);
+                        
+                        // Obtener las dimensiones originales de la imagen
+                        const imgOriginalWidth = this.naturalWidth || this.width;
+                        const imgOriginalHeight = this.naturalHeight || this.height;
+                        
+                        console.log(`📐 Dimensiones originales: ${imgOriginalWidth}x${imgOriginalHeight}`);
+                        console.log(`📐 Dimensiones en PDF: ${imgWidth}x${imgHeight}`);
+                        
+                        // Calcular la escala de la imagen en el PDF
+                        const scaleX = imgWidth / imgOriginalWidth;
+                        const scaleY = imgHeight / imgOriginalHeight;
+                        
+                        console.log(`📏 Escalas: X=${scaleX.toFixed(4)}, Y=${scaleY.toFixed(4)}`);
+                        
+                        // Convertir las coordenadas al sistema del PDF (coordenadas relativas a la imagen)
+                        const textX = xPos + (1104 * scaleX);
+                        const textY = yPos + (56 * scaleY);
+                        const textWidth = 437 * scaleX;
+                        
+                        console.log(`📍 Posición calculada: X=${textX.toFixed(2)}, Y=${textY.toFixed(2)}`);
+                        console.log(`📏 Ancho del área: ${textWidth.toFixed(2)}`);
+                        
+                        // Verificar si las coordenadas están dentro de los límites del PDF
+                        if (textX > 0 && textX < pageWidth && textY > 0 && textY < pageHeight) {
+                            console.log('✅ Coordenadas dentro de los límites del PDF');
+                        } else {
+                            console.log('⚠️ Coordenadas fuera de los límites del PDF');
+                            console.log(`Límites: ancho=${pageWidth}, alto=${pageHeight}`);
+                        }
+                        
+                        // ⚙️ CONFIGURACIÓN DE POSICIÓN DEL TEXTO ⚙️
+                        // Puedes ajustar estos valores para mover el texto:
+                        // textX_pos: Más alto = más a la derecha, más bajo = más a la izquierda
+                        // textY_pos: Más alto = más abajo, más bajo = más arriba
+                        const textX_pos = 63;  // 📍 CAMBIA ESTE VALOR: posición horizontal (en mm)
+                        const textY_pos = 118; // 📍 CAMBIA ESTE VALOR: posición vertical (en mm)
+                        
+                        console.log(`🎯 Agregando nombre en posición: X=${textX_pos}, Y=${textY_pos}`);
+                        
+                        // Configurar el texto: solo letras, sin fondo
+                        doc.setFontSize(10); // Tamaño más pequeño
+                        doc.setFont(undefined, 'bold');
+                        doc.setTextColor(0, 0, 0); // Texto negro
+                        
+                        // Agregar el texto del nombre sobre la imagen
+                        doc.text(nombrePropietario, textX_pos, textY_pos);
+                        
+                        console.log('✅ Nombre del propietario agregado exitosamente sobre la imagen');
+                        console.log(`📍 Coordenadas finales: (${textX.toFixed(2)}, ${textY.toFixed(2)})`);
+                    } else {
+                        console.log('⚠️ No se encontró nombre del propietario en el formulario');
+                    }
+
+                    // 📅 AGREGAR FECHA SOBREPUESTA
+                    const fechaVisita = document.getElementById('fechaVisita')?.value;
+                    if (fechaVisita) {
+                        // ⚙️ CONFIGURACIÓN DE POSICIÓN DE LA FECHA ⚙️
+                        // Puedes ajustar estos valores para mover la fecha:
+                        const fechaX_pos = 46;  // 📍 CAMBIA ESTE VALOR: posición horizontal de fecha (en mm)
+                        const fechaY_pos = 183; // 📍 CAMBIA ESTE VALOR: posición vertical de fecha (en mm)
+                        
+                        console.log(`📅 Agregando fecha en posición: X=${fechaX_pos}, Y=${fechaY_pos}`);
+                        
+                        // Formatear la fecha (convertir de YYYY-MM-DD a DD/MM/YYYY)
+                        const fechaFormateada = fechaVisita.split('-').reverse().join('/');
+                        
+                        // Configurar el texto de fecha: mismo estilo que el nombre
+                        doc.setFontSize(10);
+                        doc.setFont(undefined, 'bold');
+                        doc.setTextColor(0, 0, 0); // Texto negro
+                        
+                        // Agregar el texto de la fecha sobre la imagen
+                        doc.text(fechaFormateada, fechaX_pos, fechaY_pos);
+                        
+                        console.log('✅ Fecha agregada exitosamente sobre la imagen:', fechaFormateada);
+                    } else {
+                        console.log('⚠️ No se encontró fecha en el formulario');
+                    }
+
+                    // ✍️ AGREGAR FIRMA DEL CLIENTE SOBREPUESTA
+                    const signatureCanvas = document.getElementById('signatureCanvas');
+                    if (signatureCanvas) {
+                        // Verificar si el canvas tiene contenido (no está vacío)
+                        const signatureData = signatureCanvas.toDataURL();
+                        
+                        // Crear un canvas temporal para verificar si está vacío
+                        const tempCanvas = document.createElement('canvas');
+                        tempCanvas.width = signatureCanvas.width;
+                        tempCanvas.height = signatureCanvas.height;
+                        const tempCtx = tempCanvas.getContext('2d');
+                        tempCtx.fillStyle = 'white';
+                        tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                        const blankData = tempCanvas.toDataURL();
+                        
+                        if (signatureData !== blankData) {
+                            // ⚙️ CONFIGURACIÓN DE POSICIÓN DE LA FIRMA ⚙️
+                            // Puedes ajustar estos valores para mover la firma:
+                            const firmaX_pos = 39;  // 📍 CAMBIA ESTE VALOR: posición horizontal de firma (en mm)
+                            const firmaY_pos = 191;  // 📍 CAMBIA ESTE VALOR: posición vertical de firma (en mm)
+                            const firmaAncho = 40;   // 📍 CAMBIA ESTE VALOR: ancho de la firma (en mm)
+                            const firmaAlto = 20;    // 📍 CAMBIA ESTE VALOR: alto de la firma (en mm)
+                            
+                            console.log(`✍️ Agregando firma en posición: X=${firmaX_pos}, Y=${firmaY_pos}`);
+                            
+                            // Agregar la firma como imagen sobre la imagen de fondo
+                            doc.addImage(signatureData, 'PNG', firmaX_pos, firmaY_pos, firmaAncho, firmaAlto);
+                            
+                            console.log('✅ Firma del cliente agregada exitosamente sobre la imagen');
+                        } else {
+                            console.log('⚠️ No se encontró firma del cliente (canvas vacío)');
+                        }
+                    } else {
+                        console.log('⚠️ No se encontró canvas de firma del cliente');
+                    }
+                    
+                    // Finalizar y descargar PDF
+                    finalizarPDFUnico();
+                    
+                } catch (error) {
+                    console.error('✗ Error al procesar imagen de Flickr:', error);
+                    // Si falla el procesamiento, continuar sin imagen
+                    finalizarPDFUnico();
+                }
+            };
+            
+            img.onerror = function() {
+                console.error('✗ No se pudo cargar la imagen de Flickr');
+                console.log('Generando PDF sin imagen adicional...');
+                finalizarPDFUnico();
+            };
+            
+            // Función para finalizar el PDF una sola vez
+            const finalizarPDFUnico = () => {
+                console.log('Finalizando PDF único...');
+                
+                // Pie de página para la página adicional
+                const footerY = pageHeight - 35;
+                
+                // Línea decorativa superior
+                doc.setDrawColor(200, 200, 200);
+                doc.setLineWidth(0.5);
+                doc.line(margin, footerY - 5, pageWidth - margin, footerY - 5);
+                
+                // Información adicional
+                doc.setFontSize(7);
+                doc.setTextColor(100, 100, 100);
+                const fecha = new Date().toLocaleDateString('es-GT', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                doc.text(`Documento generado el ${fecha}`, margin, footerY);
+                doc.text('Sistema de Verificación de Cobros v2.0', pageWidth - margin, footerY, { align: 'right' });
+                
+                // Banner inferior
+                doc.setFillColor(255, 101, 0);
+                doc.rect(0, pageHeight - 15, pageWidth, 15, 'F');
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(8);
+                doc.setFont(undefined, 'bold');
+                doc.text('DOCUMENTO OFICIAL DE VERIFICACIÓN', pageWidth / 2, pageHeight - 7, { align: 'center' });
+                doc.setFontSize(6);
+                doc.text('Este documento es válido únicamente con las firmas correspondientes', pageWidth / 2, pageHeight - 3, { align: 'center' });
+                
+                // DESCARGAR EL PDF UNA SOLA VEZ
+                const nombreArchivo = `Verificacion_Cobros_${nombrePropietario.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.pdf`;
+                doc.save(nombreArchivo);
+                
+                // Confirmación
+                console.log('✓ PDF descargado exitosamente:', nombreArchivo);
+                alert('PDF generado exitosamente con imagen de Flickr');
+            };
+            
+            // Cargar la imagen específica
+            img.src = 'https://live.staticflickr.com/65535/54809672184_4f5725c5de_b.jpg';
+            
+            // Timeout de 8 segundos para evitar esperas largas
+            setTimeout(() => {
+                if (!img.complete) {
+                    console.log('⏱️ Timeout: Generando PDF sin imagen externa');
+                    img.onerror();
+                }
+            }, 8000);
         }
         
         // Hacer la función disponible globalmente
