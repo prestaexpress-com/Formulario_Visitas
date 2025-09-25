@@ -409,6 +409,65 @@
             margin-top: 16px;
         }
 
+        .photo-buttons {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .photo-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 16px;
+            border: 2px dashed var(--gray-border);
+            border-radius: var(--border-radius);
+            background: var(--gray-light);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            min-height: 80px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .photo-btn:hover {
+            border-color: var(--orange-primary);
+            background: rgba(255, 101, 0, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .photo-btn span {
+            font-size: 24px;
+        }
+
+        .camera-btn:hover {
+            border-color: #28a745;
+            background: rgba(40, 167, 69, 0.05);
+        }
+
+        .gallery-btn:hover {
+            border-color: #007bff;
+            background: rgba(0, 123, 255, 0.05);
+        }
+
+        @media (max-width: 480px) {
+            .photo-buttons {
+                flex-direction: column;
+            }
+            
+            .photo-btn {
+                min-height: 70px;
+                padding: 12px;
+            }
+            
+            .photo-btn span {
+                font-size: 20px;
+            }
+        }
+
         .photo-item {
             position: relative;
             width: 100px;
@@ -884,6 +943,8 @@
                             <option value="Educación">Educación</option>
                             <option value="Salud">Salud</option>
                             <option value="Agricultura">Agricultura</option>
+                            <option value="Consolidación de deudas">Consolidación de deudas</option>
+                            <option value="Pago Hipoteca">Pago Hipoteca</option>
                             <option value="Otro">Otro</option>
                         </select>
                         <div class="error-message">Este campo es obligatorio</div>
@@ -1365,7 +1426,7 @@
                     
                     <div class="form-group">
                         <label for="fechaIngreso">Fecha de Ingreso</label>
-                        <input type="date" id="fechaIngreso" name="fechaIngreso">
+                        <input type="text" id="fechaIngreso" name="fechaIngreso" placeholder="Ej: Enero 2020, 01/2020, Hace 3 años, etc.">
                     </div>
                     
                     <div class="form-group">
@@ -1398,15 +1459,25 @@
                     
                     <div class="form-group full-width">
                         <label>Fotografías de la Vivienda y Negocio</label>
-                        <div class="file-upload">
-                            <input type="file" id="photos" name="photos" accept="image/*" multiple capture="environment" class="file-input">
-                            <label for="photos" class="file-label">
+                        <div class="photo-buttons">
+                            <input type="file" id="photos-camera" name="photos" accept="image/*" multiple capture="environment" class="file-input" style="display: none;">
+                            <input type="file" id="photos-gallery" name="photos" accept="image/*" multiple class="file-input" style="display: none;">
+                            
+                            <button type="button" class="photo-btn camera-btn" onclick="document.getElementById('photos-camera').click()">
                                 <span>📷</span>
                                 <div>
-                                    <strong>Tomar/Subir Fotografías</strong><br>
-                                    <small>Toque para usar la cámara o seleccionar archivos</small>
+                                    <strong>Tomar Foto</strong><br>
+                                    <small>Usar cámara</small>
                                 </div>
-                            </label>
+                            </button>
+                            
+                            <button type="button" class="photo-btn gallery-btn" onclick="document.getElementById('photos-gallery').click()">
+                                <span>🖼️</span>
+                                <div>
+                                    <strong>Galería</strong><br>
+                                    <small>Seleccionar fotos</small>
+                                </div>
+                            </button>
                         </div>
                         <div class="photo-preview" id="photoPreview"></div>
                     </div>
@@ -1523,15 +1594,25 @@
                     
                     <div class="form-group full-width">
                         <label>Fotografías de la Vivienda</label>
-                        <div class="file-upload">
-                            <input type="file" id="photos" name="photos" accept="image/*" multiple capture="environment" class="file-input">
-                            <label for="photos" class="file-label">
+                        <div class="photo-buttons">
+                            <input type="file" id="photos2-camera" name="photos" accept="image/*" multiple capture="environment" class="file-input" style="display: none;">
+                            <input type="file" id="photos2-gallery" name="photos" accept="image/*" multiple class="file-input" style="display: none;">
+                            
+                            <button type="button" class="photo-btn camera-btn" onclick="document.getElementById('photos2-camera').click()">
                                 <span>📷</span>
                                 <div>
-                                    <strong>Tomar/Subir Fotografías</strong><br>
-                                    <small>Toque para usar la cámara o seleccionar archivos</small>
+                                    <strong>Tomar Foto</strong><br>
+                                    <small>Usar cámara</small>
                                 </div>
-                            </label>
+                            </button>
+                            
+                            <button type="button" class="photo-btn gallery-btn" onclick="document.getElementById('photos2-gallery').click()">
+                                <span>🖼️</span>
+                                <div>
+                                    <strong>Galería</strong><br>
+                                    <small>Seleccionar fotos</small>
+                                </div>
+                            </button>
                         </div>
                         <div class="photo-preview" id="photoPreview"></div>
                     </div>
@@ -1675,10 +1756,23 @@
                     locationBtn.addEventListener('click', () => this.getCurrentLocation());
                 }
 
-                // File upload
-                const photosInput = document.getElementById('photos');
-                if (photosInput) {
-                    photosInput.addEventListener('change', (e) => this.handlePhotoUpload(e));
+                // File upload - Camera and Gallery inputs
+                const photosCameraInput = document.getElementById('photos-camera');
+                const photosGalleryInput = document.getElementById('photos-gallery');
+                const photos2CameraInput = document.getElementById('photos2-camera');
+                const photos2GalleryInput = document.getElementById('photos2-gallery');
+                
+                if (photosCameraInput) {
+                    photosCameraInput.addEventListener('change', (e) => this.handlePhotoUpload(e));
+                }
+                if (photosGalleryInput) {
+                    photosGalleryInput.addEventListener('change', (e) => this.handlePhotoUpload(e));
+                }
+                if (photos2CameraInput) {
+                    photos2CameraInput.addEventListener('change', (e) => this.handlePhotoUpload(e));
+                }
+                if (photos2GalleryInput) {
+                    photos2GalleryInput.addEventListener('change', (e) => this.handlePhotoUpload(e));
                 }
 
                 // Canvas tools
