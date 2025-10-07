@@ -1499,6 +1499,10 @@
                     <h3>Croquis de la Vivienda</h3>
                     <p>Dibuje un croquis de la vivienda y sus alrededores</p>
                     <canvas id="sketchCanvas" width="400" height="300"></canvas>
+                    <div class="form-group full-width" style="margin-top: 16px;">
+                        <label for="croquisViviendaObservaciones">Observaciones del Croquis de Vivienda</label>
+                        <textarea id="croquisViviendaObservaciones" name="croquisViviendaObservaciones" rows="2" placeholder="Describa puntos de referencia, colores, etc."></textarea>
+                    </div>
                     <div class="canvas-tools">
                         <button type="button" class="tool-btn active" data-tool="draw">
                             <span>✏️</span> Dibujar
@@ -1522,6 +1526,10 @@
                     <h3>Croquis de Ubicación</h3>
                     <p>Dibuje un croquis de la ubicación del inmueble</p>
                     <canvas id="locationCanvas" width="400" height="300"></canvas>
+                    <div class="form-group full-width" style="margin-top: 16px;">
+                        <label for="croquisUbicacionObservaciones">Observaciones del Croquis de Ubicación</label>
+                        <textarea id="croquisUbicacionObservaciones" name="croquisUbicacionObservaciones" rows="2" placeholder="Indique calles, avenidas, y puntos clave."></textarea>
+                    </div>
                     <div class="canvas-tools">
                         <button type="button" class="tool-btn active" data-tool="draw" data-canvas="location">
                             <span>✏️</span> Dibujar
@@ -1876,44 +1884,146 @@
                 ctx.lineJoin = 'round';
                 ctx.strokeStyle = '#333';
 
-                // Mouse events
-                canvas.addEventListener('mousedown', (e) => this.startDrawing(e, ctx, type));
-                canvas.addEventListener('mousemove', (e) => this.draw(e, ctx, type));
-                canvas.addEventListener('mouseup', () => this.stopDrawing(type));
-
-                // Touch events
-                canvas.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    const touch = e.touches[0];
-                    const mouseEvent = new MouseEvent('mousedown', {
-                        clientX: touch.clientX,
-                        clientY: touch.clientY
+                // Use Pointer Events when available (modern browsers)
+                if (window.PointerEvent) {
+                    canvas.addEventListener('pointerdown', (e) => {
+                        if (e.pointerType === 'mouse' && e.button !== 0) return;
+                        e.preventDefault();
+                        try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+                        this.activePointerId = e.pointerId;
+                        this.isDrawing = true;
+                        const rect = canvas.getBoundingClientRect();
+                        const scaleX = canvas.width / rect.width;
+                        const scaleY = canvas.height / rect.height;
+                        this.lastX = (e.clientX - rect.left) * scaleX;
+                        this.lastY = (e.clientY - rect.top) * scaleY;
+                        if (type === 'sketch') this.saveSketchState();
                     });
-                    canvas.dispatchEvent(mouseEvent);
-                });
 
-                canvas.addEventListener('touchmove', (e) => {
-                    e.preventDefault();
-                    const touch = e.touches[0];
-                    const mouseEvent = new MouseEvent('mousemove', {
-                        clientX: touch.clientX,
-                        clientY: touch.clientY
+                    canvas.addEventListener('pointermove', (e) => {
+                        if (!this.isDrawing || this.activePointerId !== e.pointerId) return;
+                        if (e.pointerType === 'mouse' && (e.buttons === 0)) return;
+                        const rect = canvas.getBoundingClientRect();
+                        const scaleX = canvas.width / rect.width;
+                        const scaleY = canvas.height / rect.height;
+                        const currentX = (e.clientX - rect.left) * scaleX;
+                        const currentY = (e.clientY - rect.top) * scaleY;
+                        ctx.globalCompositeOperation = 'source-over';
+                        ctx.lineWidth = this.currentThickness;
+                        ctx.beginPath();
+                        ctx.moveTo(this.lastX, this.lastY);
+                        ctx.lineTo(currentX, currentY);
+                        ctx.stroke();
+                        this.lastX = currentX;
+                        this.lastY = currentY;
                     });
-                    canvas.dispatchEvent(mouseEvent);
-                });
 
-                canvas.addEventListener('touchend', (e) => {
-                    e.preventDefault();
-                    const mouseEvent = new MouseEvent('mouseup', {});
-                    canvas.dispatchEvent(mouseEvent);
-                });
+                    const endPointer = (e) => {
+                        if (this.activePointerId !== undefined && e && e.pointerId !== this.activePointerId) return;
+                        try { if (this.activePointerId !== undefined) canvas.releasePointerCapture(this.activePointerId); } catch (err) {}
+                        if (this.isDrawing) {
+                            this.isDrawing = false;
+                            this.activePointerId = undefined;
+                            this.stopDrawing(type);
+                        }
+                    };
+
+                    canvas.addEventListener('pointerup', endPointer);
+                    canvas.addEventListener('pointercancel', endPointer);
+                    canvas.addEventListener('pointerleave', (e) => {
+                        if (this.isDrawing && this.activePointerId === e.pointerId) endPointer(e);
+                    });
+                } else {
+                    // Fallback for older browsers: mouse + touch
+                    // Mouse
+                    canvas.addEventListener('mousedown', (e) => {
+                        if (e.button !== 0) return;
+                        e.preventDefault();
+                        this.isDrawing = true;
+                        const rect = canvas.getBoundingClientRect();
+                        const scaleX = canvas.width / rect.width;
+                        const scaleY = canvas.height / rect.height;
+                        this.lastX = (e.clientX - rect.left) * scaleX;
+                        this.lastY = (e.clientY - rect.top) * scaleY;
+                        if (type === 'sketch') this.saveSketchState();
+                    });
+
+                    window.addEventListener('mousemove', (e) => {
+                        if (!this.isDrawing) return;
+                        // Ensure the pointer is within the canvas bounds
+                        const rect = canvas.getBoundingClientRect();
+                        if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) return;
+                        const scaleX = canvas.width / rect.width;
+                        const scaleY = canvas.height / rect.height;
+                        const currentX = (e.clientX - rect.left) * scaleX;
+                        const currentY = (e.clientY - rect.top) * scaleY;
+                        ctx.globalCompositeOperation = 'source-over';
+                        ctx.lineWidth = this.currentThickness;
+                        ctx.beginPath();
+                        ctx.moveTo(this.lastX, this.lastY);
+                        ctx.lineTo(currentX, currentY);
+                        ctx.stroke();
+                        this.lastX = currentX;
+                        this.lastY = currentY;
+                    });
+
+                    window.addEventListener('mouseup', (e) => {
+                        if (this.isDrawing) {
+                            this.isDrawing = false;
+                            this.stopDrawing(type);
+                        }
+                    });
+
+                    // Touch
+                    canvas.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        const touch = e.touches[0];
+                        this.isDrawing = true;
+                        const rect = canvas.getBoundingClientRect();
+                        const scaleX = canvas.width / rect.width;
+                        const scaleY = canvas.height / rect.height;
+                        this.lastX = (touch.clientX - rect.left) * scaleX;
+                        this.lastY = (touch.clientY - rect.top) * scaleY;
+                        if (type === 'sketch') this.saveSketchState();
+                    }, { passive: false });
+
+                    canvas.addEventListener('touchmove', (e) => {
+                        e.preventDefault();
+                        if (!this.isDrawing) return;
+                        const touch = e.touches[0];
+                        const rect = canvas.getBoundingClientRect();
+                        // ignore moves outside
+                        if (touch.clientX < rect.left || touch.clientX > rect.right || touch.clientY < rect.top || touch.clientY > rect.bottom) return;
+                        const scaleX = canvas.width / rect.width;
+                        const scaleY = canvas.height / rect.height;
+                        const currentX = (touch.clientX - rect.left) * scaleX;
+                        const currentY = (touch.clientY - rect.top) * scaleY;
+                        ctx.globalCompositeOperation = 'source-over';
+                        ctx.lineWidth = this.currentThickness;
+                        ctx.beginPath();
+                        ctx.moveTo(this.lastX, this.lastY);
+                        ctx.lineTo(currentX, currentY);
+                        ctx.stroke();
+                        this.lastX = currentX;
+                        this.lastY = currentY;
+                    }, { passive: false });
+
+                    canvas.addEventListener('touchend', (e) => {
+                        if (this.isDrawing) {
+                            this.isDrawing = false;
+                            this.stopDrawing(type);
+                        }
+                    });
+                }
             }
 
             startDrawing(e, ctx, type) {
                 this.isDrawing = true;
                 const rect = e.target.getBoundingClientRect();
-                this.lastX = e.clientX - rect.left;
-                this.lastY = e.clientY - rect.top;
+                const scaleX = e.target.width / rect.width;
+                const scaleY = e.target.height / rect.height;
+                this.lastX = (e.clientX - rect.left) * scaleX;
+                this.lastY = (e.clientY - rect.top) * scaleY;
 
                 if (type === 'sketch') {
                     this.saveSketchState();
@@ -1924,8 +2034,10 @@
                 if (!this.isDrawing) return;
 
                 const rect = e.target.getBoundingClientRect();
-                const currentX = e.clientX - rect.left;
-                const currentY = e.clientY - rect.top;
+                const scaleX = e.target.width / rect.width;
+                const scaleY = e.target.height / rect.height;
+                const currentX = (e.clientX - rect.left) * scaleX;
+                const currentY = (e.clientY - rect.top) * scaleY;
 
                 ctx.globalCompositeOperation = 'source-over';
                 ctx.lineWidth = this.currentThickness;
@@ -3063,23 +3175,22 @@
             doc.setTextColor(0, 0, 0);
             
             const tipoVivienda = document.querySelector('input[name="tipoVivienda"]:checked')?.value || '';
-            const tipoTecho = document.querySelector('input[name="materialTecho"]:checked')?.value || '';
-            const tipoPared = document.querySelector('input[name="materialPared"]:checked')?.value || '';
-            const tipoPiso = document.querySelector('input[name="materialPiso"]:checked')?.value || '';
+            const tipoTecho = document.getElementById('materialTecho')?.value || '';
+            const tipoPared = document.getElementById('materialParedes')?.value || '';
+            const tipoPiso = document.getElementById('materialPiso')?.value || '';
             const habitaciones = document.getElementById('numeroHabitaciones')?.value || '';
-            const sanitarios = document.getElementById('numeroSanitarios')?.value || '';
-            const nivelVivienda = document.getElementById('nivelVivienda')?.value || '';
-            const condicionVivienda = document.getElementById('condicionVivienda')?.value || '';
+            const sanitarios = document.getElementById('numeroBanos')?.value || '';
+            const condicionViviendaElem = document.querySelector('input[name="condicionVivienda"]:checked');
+            const condicionVivienda = condicionViviendaElem ? condicionViviendaElem.value : '';
             
             doc.setFontSize(8);
             yPosition = addText(`Tipo: ${tipoVivienda}`, margin, yPosition, contentWidth / 3, 8);
             yPosition = addText(`Habitaciones: ${habitaciones}`, margin + contentWidth / 3, yPosition - 3, contentWidth / 3, 8);
-            yPosition = addText(`Sanitarios: ${sanitarios}`, margin + (contentWidth * 2 / 3), yPosition - 3, contentWidth / 3, 8);
+            yPosition = addText(`Baños: ${sanitarios}`, margin + (contentWidth * 2 / 3), yPosition - 3, contentWidth / 3, 8);
             yPosition = addText(`Techo: ${tipoTecho}`, margin, yPosition, contentWidth / 2, 8);
             yPosition = addText(`Pared: ${tipoPared}`, margin + contentWidth / 2, yPosition - 3, contentWidth / 2, 8);
             yPosition = addText(`Piso: ${tipoPiso}`, margin, yPosition, contentWidth / 2, 8);
-            yPosition = addText(`Nivel: ${nivelVivienda}`, margin + contentWidth / 2, yPosition - 3, contentWidth / 2, 8);
-            yPosition = addText(`Condición: ${condicionVivienda}`, margin, yPosition, contentWidth, 8);
+            yPosition = addText(`Condición: ${condicionVivienda}`, margin + contentWidth / 2, yPosition - 3, contentWidth / 2, 8);
             yPosition += 5;
             
             // Información del negocio
@@ -3706,8 +3817,7 @@
                         tempCanvas.width = signatureCanvas.width;
                         tempCanvas.height = signatureCanvas.height;
                         const tempCtx = tempCanvas.getContext('2d');
-                        tempCtx.fillStyle = 'white';
-                        tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                        // No es necesario rellenar, comparar con una URL de datos vacía es suficiente
                         const blankData = tempCanvas.toDataURL();
                         
                         if (signatureData !== blankData) {
