@@ -803,6 +803,16 @@
         <header class="header">
             <h1>📋 Formulario de Visitas</h1>
             <p>Complete todos los campos requeridos para registrar la visita</p>
+            <div class="form-group" style="margin-top: 15px;">
+                <label for="tipoVerificacion" style="display: block; margin-bottom: 5px; font-weight: 600;">Tipo de Verificación</label>
+                <select id="tipoVerificacion" class="form-control" style="width: 100%; padding: 8px; border: 1px solid var(--gray-border); border-radius: var(--border-radius); background-color: var(--white);">
+                    <option value="">Seleccione el tipo de verificación</option>
+                    <option value="Domiciliar">Domiciliar</option>
+                    <option value="Garantia">Garantía</option>
+                    <option value="Laboral">Laboral</option>
+                    <option value="SA">S.A</option>
+                </select>
+            </div>
         </header>
 
         <div class="progress-bar">
@@ -833,11 +843,11 @@
                 </div>
                 <div class="progress-step" data-step="7">
                     <div class="step-icon">7</div>
-                    <div class="step-label">Croquis</div>
+                    <div class="step-label">Croquis y Firmas</div>
                 </div>
                 <div class="progress-step" data-step="8">
                     <div class="step-icon">8</div>
-                    <div class="step-label">Firma</div>
+                    <div class="step-label">Finalizar</div>
                 </div>
             </div>
             <div class="progress-fill">
@@ -936,7 +946,7 @@
                     </div>
                     <div class="form-group">
                         <label for="destinoCredito">Destino de Crédito <span class="required">*</span></label>
-                        <select id="destinoCredito" name="destinoCredito" required>
+                        <select id="destinoCredito" name="destinoCredito" required onchange="mostrarOtroDestino()">
                             <option value="">Seleccione...</option>
                             <option value="Mejoras al hogar">Mejoras al hogar</option>
                             <option value="Negocio">Negocio</option>
@@ -947,6 +957,9 @@
                             <option value="Pago Hipoteca">Pago Hipoteca</option>
                             <option value="Otro">Otro</option>
                         </select>
+                        <div id="otroDestinoContainer" style="display: none; margin-top: 10px;">
+                            <input type="text" id="otroDestino" name="otroDestino" class="form-control" placeholder="Especifique el destino del crédito">
+                        </div>
                         <div class="error-message">Este campo es obligatorio</div>
                     </div>
                 </div>
@@ -962,20 +975,20 @@
                         <label>Tipo de Vivienda <span class="required">*</span></label>
                         <div class="radio-group">
                             <div class="radio-item">
-                                <input type="radio" id="casa" name="tipoVivienda" value="Casa" required>
-                                <label for="casa">Casa</label>
+                                <input type="radio" id="casa" name="tipoVivienda" value="CASA" required>
+                                <label for="casa">CASA</label>
                             </div>
                             <div class="radio-item">
-                                <input type="radio" id="apartamento" name="tipoVivienda" value="Apartamento">
-                                <label for="apartamento">Apartamento</label>
+                                <input type="radio" id="terreno" name="tipoVivienda" value="TERRENO">
+                                <label for="terreno">TERRENO</label>
                             </div>
                             <div class="radio-item">
-                                <input type="radio" id="rancho" name="tipoVivienda" value="Rancho">
-                                <label for="rancho">Rancho</label>
+                                <input type="radio" id="apartamento" name="tipoVivienda" value="APARTAMENTO">
+                                <label for="apartamento">APARTAMENTO</label>
                             </div>
                             <div class="radio-item">
-                                <input type="radio" id="otro" name="tipoVivienda" value="Otro">
-                                <label for="otro">Otro</label>
+                                <input type="radio" id="obraGris" name="tipoVivienda" value="OBRA GRIS">
+                                <label for="obraGris">OBRA GRIS</label>
                             </div>
                         </div>
                         <div class="error-message">Seleccione el tipo de vivienda</div>
@@ -998,7 +1011,6 @@
                         <label>Material del Techo</label>
                         <select id="materialTecho" name="materialTecho">
                             <option value="">Seleccione...</option>
-                            <option value="Concreto">Concreto</option>
                             <option value="Lámina">Lámina</option>
                             <option value="Teja">Teja</option>
                             <option value="Terraza">Terraza</option>
@@ -1078,12 +1090,24 @@
 
                     <div class="form-group full-width">
                         <label for="formaIngresoGarita">Forma de Ingreso a Garita</label>
-                        <select id="formaIngresoGarita" name="formaIngresoGarita">
+                        <select id="formaIngresoGarita" name="formaIngresoGarita" onchange="mostrarDetalleGarita()">
                             <option value="">Seleccione...</option>
                             <option value="Código">Código</option>
                             <option value="Marbete">Marbete</option>
                             <option value="Entrada Libre">Entrada Libre</option>
                         </select>
+                        <div id="detalleCodigoContainer" style="display: none; margin-top: 10px;">
+                            <label for="detalleCodigo">Código de acceso:</label>
+                            <input type="text" id="detalleCodigo" name="detalleCodigo" class="form-control" placeholder="Ingrese el código de acceso">
+                        </div>
+                        <div id="detalleMarbeteContainer" style="display: none; margin-top: 10px;">
+                            <label for="detalleMarbete">Número de marbete:</label>
+                            <input type="text" id="detalleMarbete" name="detalleMarbete" class="form-control" placeholder="Ingrese el número de marbete">
+                        </div>
+                        <div id="detalleEntradaLibreContainer" style="display: none; margin-top: 10px;">
+                            <label for="detalleEntradaLibre">Detalles de entrada libre:</label>
+                            <input type="text" id="detalleEntradaLibre" name="detalleEntradaLibre" class="form-control" placeholder="Ingrese detalles adicionales (opcional)">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1524,7 +1548,31 @@
                 
                 <div class="canvas-container" style="margin-top: 24px;">
                     <h3>Croquis de Ubicación</h3>
-                    <p>Dibuje un croquis de la ubicación del inmueble</p>
+                    <p>Dibuje un croquis de la ubicación del inmueble o use su ubicación actual</p>
+                    
+                    <!-- Botón para obtener ubicación actual -->
+                    <div style="margin-bottom: 16px;">
+                        <button type="button" class="btn-secondary" id="btnObtenerUbicacion" onclick="obtenerUbicacionActual()">
+                            <span>📍</span> Obtener Ubicación Actual
+                        </button>
+                        <span id="ubicacionStatus" style="margin-left: 10px; font-size: 14px; color: #666;"></span>
+                    </div>
+                    
+                    <!-- Mapa de previsualización -->
+                    <div id="mapaUbicacionContainer" style="display: none; margin-bottom: 16px;">
+                        <iframe 
+                            id="mapaUbicacion" 
+                            width="100%" 
+                            height="300" 
+                            style="border: 2px solid var(--primary-color); border-radius: var(--border-radius);"
+                            frameborder="0">
+                        </iframe>
+                        <div style="margin-top: 8px; font-size: 13px; color: #666;">
+                            <strong>Coordenadas:</strong> 
+                            <span id="coordenadasTexto"></span>
+                        </div>
+                    </div>
+                    
                     <canvas id="locationCanvas" width="400" height="300"></canvas>
                     <div class="form-group full-width" style="margin-top: 16px;">
                         <label for="croquisUbicacionObservaciones">Observaciones del Croquis de Ubicación</label>
@@ -1548,28 +1596,68 @@
                         </button>
                     </div>
                 </div>
-            </div>
-
-            <!-- Paso 8: Firma -->
-            <div class="form-step" data-step="8">
-                <h2 class="step-title">
-                    <span>✍️</span> Firmas
-                </h2>
                 
-                <div class="canvas-container">
-                    <h3>Firma del Cliente</h3>
-                    <p>El cliente debe firmar aquí para confirmar la información <span class="required">*</span></p>
-                    <canvas id="signatureCanvas" width="400" height="200"></canvas>
-                    <div class="canvas-tools">
-                        <button type="button" class="tool-btn" id="clearSignatureBtn">
-                            <span>🗑️</span> Limpiar Firma
-                        </button>
+                <!-- Firmas del Cliente y Verificador (debajo del mapa) -->
+                <div class="canvas-container" style="margin-top: 32px;">
+                    <h3>✍️ Autorización del Cliente</h3>
+                    
+                    <!-- Tipo de autorización -->
+                    <div class="form-group" style="margin-bottom: 16px; text-align: left;">
+                        <label style="font-weight: bold; margin-bottom: 8px; display: block;">Tipo de Autorización <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="tipoFirma" name="tipoAutorizacion" value="Firma" checked onchange="toggleAutorizacion()">
+                                <label for="tipoFirma">✍️ Firma</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="tipoHuella" name="tipoAutorizacion" value="Huella Dactilar" onchange="toggleAutorizacion()">
+                                <label for="tipoHuella">👆 Huella Dactilar</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="tipoNoAutorizo" name="tipoAutorizacion" value="No Autorizó" onchange="toggleAutorizacion()">
+                                <label for="tipoNoAutorizo">❌ No Autorizó</label>
+                            </div>
+                        </div>
                     </div>
-                    <div class="error-message" id="signatureError">La firma es obligatoria</div>
+                    
+                    <!-- Canvas de firma (se muestra según el tipo) -->
+                    <div id="canvasAutorizacionContainer">
+                        <p id="instruccionAutorizacion">El cliente debe firmar aquí para confirmar la información</p>
+                        
+                        <!-- Botón para tomar foto de huella (solo visible cuando se selecciona Huella) -->
+                        <div id="btnTomarHuellaContainer" style="display: none; margin-bottom: 12px;">
+                            <input type="file" id="huellaFileInput" accept="image/*" capture="environment" style="display: none;" onchange="cargarImagenHuella(event)">
+                            <button type="button" class="btn-secondary" onclick="document.getElementById('huellaFileInput').click()">
+                                <span>📸</span> Tomar Foto de Huella
+                            </button>
+                            <button type="button" class="btn-secondary" onclick="document.getElementById('huellaFileInputGaleria').click()" style="margin-left: 8px;">
+                                <span>🖼️</span> Desde Galería
+                            </button>
+                            <input type="file" id="huellaFileInputGaleria" accept="image/*" style="display: none;" onchange="cargarImagenHuella(event)">
+                        </div>
+                        
+                        <canvas id="signatureCanvas" width="400" height="200"></canvas>
+                        <div class="canvas-tools">
+                            <button type="button" class="tool-btn" id="mejorarHuellaBtn" onclick="mejorarHuella()" style="display: none;">
+                                <span>✨</span> Mejorar Contraste
+                            </button>
+                            <button type="button" class="tool-btn" id="clearSignatureBtn">
+                                <span>🗑️</span> Limpiar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Campo para motivo si no autorizó -->
+                    <div id="motivoNoAutorizacion" style="display: none; margin-top: 16px;">
+                        <label for="motivoNoAutorizo" style="font-weight: bold;">Motivo por el que no autorizó:</label>
+                        <textarea id="motivoNoAutorizo" name="motivoNoAutorizo" rows="2" placeholder="Indique el motivo..."></textarea>
+                    </div>
+                    
+                    <div class="error-message" id="signatureError">La autorización es obligatoria</div>
                 </div>
                 
                 <div class="canvas-container" style="margin-top: 24px;">
-                    <h3>Firma del Verificador</h3>
+                    <h3>✍️ Firma del Verificador</h3>
                     <p>El verificador debe firmar aquí <span class="required">*</span></p>
                     <canvas id="verifierSignatureCanvas" width="400" height="200"></canvas>
                     <div class="canvas-tools">
@@ -1579,6 +1667,13 @@
                     </div>
                     <div class="error-message" id="verifierSignatureError">La firma del verificador es obligatoria</div>
                 </div>
+            </div>
+
+            <!-- Paso 8: Finalización -->
+            <div class="form-step" data-step="8">
+                <h2 class="step-title">
+                    <span>✅</span> Finalización
+                </h2>
                 
                 <div class="success-message" id="successMessage">
                     <strong>¡Formulario completado exitosamente!</strong><br>
@@ -1699,7 +1794,7 @@
                 <button type="submit" class="btn btn-primary" id="submitBtn" style="display: none;">
                     <span>✓</span> Enviar Formulario
                 </button>
-                <button type="button" class="btn btn-success" id="pdfBtn" style="display: none;" onclick="generarPDF()">
+                <button type="button" class="btn btn-success" id="pdfBtn" style="display: none;" onclick="generarPDFConMapa()">
                     <span>📄</span> Descargar PDF
                 </button>
             </div>
@@ -1711,6 +1806,639 @@
     </div>
 
     <script>
+        function mostrarOtroDestino() {
+            const destinoCredito = document.getElementById('destinoCredito');
+            const otroDestinoContainer = document.getElementById('otroDestinoContainer');
+            const otroDestino = document.getElementById('otroDestino');
+            
+            if (destinoCredito.value === 'Otro') {
+                otroDestinoContainer.style.display = 'block';
+                otroDestino.required = true;
+            } else {
+                otroDestinoContainer.style.display = 'none';
+                otroDestino.required = false;
+                otroDestino.value = '';
+            }
+        }
+
+        function mostrarDetalleGarita() {
+            const formaIngreso = document.getElementById('formaIngresoGarita');
+            const detalleCodigoContainer = document.getElementById('detalleCodigoContainer');
+            const detalleMarbeteContainer = document.getElementById('detalleMarbeteContainer');
+            const detalleEntradaLibreContainer = document.getElementById('detalleEntradaLibreContainer');
+            const detalleCodigo = document.getElementById('detalleCodigo');
+            const detalleMarbete = document.getElementById('detalleMarbete');
+            const detalleEntradaLibre = document.getElementById('detalleEntradaLibre');
+            
+            // Ocultar todos los campos primero
+            detalleCodigoContainer.style.display = 'none';
+            detalleMarbeteContainer.style.display = 'none';
+            detalleEntradaLibreContainer.style.display = 'none';
+            detalleCodigo.required = false;
+            detalleMarbete.required = false;
+            detalleEntradaLibre.required = false;
+            
+            // Mostrar el campo correspondiente según la selección
+            if (formaIngreso.value === 'Código') {
+                detalleCodigoContainer.style.display = 'block';
+                detalleCodigo.required = true;
+            } else if (formaIngreso.value === 'Marbete') {
+                detalleMarbeteContainer.style.display = 'block';
+                detalleMarbete.required = true;
+            } else if (formaIngreso.value === 'Entrada Libre') {
+                detalleEntradaLibreContainer.style.display = 'block';
+                // Entrada Libre no es requerido, es opcional
+            }
+        }
+
+        // Variables globales para la ubicación
+        let ubicacionActual = null;
+
+        async function cargarImagenMapaEstatico(lat, lng) {
+            if (!ubicacionActual) return;
+            
+            console.log('Cargando mapa satelital de Google Maps...');
+            
+            const status = document.getElementById('ubicacionStatus');
+            if (status) {
+                status.textContent = '⏳ Cargando mapa satelital...';
+                status.style.color = '#ff6500';
+            }
+            
+            // Usar Google Maps Static API
+            const googleApiKey = 'AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8';
+            const mapaUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=18&size=800x500&maptype=satellite&markers=color:red%7Clabel:📍%7C${lat},${lng}&key=${googleApiKey}`;
+            
+            console.log('URL del mapa:', mapaUrl);
+            
+            // Crear una imagen y cargarla
+            const img = document.createElement('img');
+            img.crossOrigin = 'anonymous';
+            
+            img.onload = function() {
+                console.log('✅ Imagen del mapa cargada');
+                
+                // Crear canvas y dibujar la imagen
+                const canvas = document.createElement('canvas');
+                canvas.width = 800;
+                canvas.height = 500;
+                const ctx = canvas.getContext('2d');
+                
+                try {
+                    ctx.drawImage(img, 0, 0, 800, 500);
+                    ubicacionActual.mapaImagen = canvas.toDataURL('image/jpeg', 0.95);
+                    console.log('✅ Mapa convertido a base64 exitosamente');
+                    
+                    if (status) {
+                        status.textContent = '✅ Ubicación y mapa satelital listos';
+                        status.style.color = '#2e7d32';
+                    }
+                } catch (error) {
+                    console.error('Error al convertir mapa:', error);
+                    // Intentar sin canvas, guardando la URL directamente
+                    ubicacionActual.mapaImagenDirecta = mapaUrl;
+                    if (status) {
+                        status.textContent = '✅ Ubicación GPS lista';
+                        status.style.color = '#2e7d32';
+                    }
+                }
+            };
+            
+            img.onerror = function(error) {
+                console.error('Error al cargar mapa de Google:', error);
+                console.log('Intentando método alternativo...');
+                
+                // Método alternativo: crear una imagen sin CORS
+                const imgSinCors = document.createElement('img');
+                imgSinCors.src = mapaUrl;
+                
+                imgSinCors.onload = function() {
+                    // Guardar la URL para usarla directamente
+                    ubicacionActual.mapaImagenDirecta = mapaUrl;
+                    console.log('✅ URL del mapa guardada');
+                    
+                    if (status) {
+                        status.textContent = '✅ Ubicación GPS lista';
+                        status.style.color = '#2e7d32';
+                    }
+                };
+                
+                imgSinCors.onerror = function() {
+                    console.error('Error total al cargar el mapa');
+                    if (status) {
+                        status.textContent = '⚠️ Ubicación GPS lista (mapa no disponible)';
+                        status.style.color = '#ff6500';
+                    }
+                };
+            };
+            
+            img.src = mapaUrl;
+        }
+        
+        function generarMapaPlaceholder(canvas, ctx, lat, lng) {
+            // Fondo blanco
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Borde naranja
+            ctx.strokeStyle = '#FF6500';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(0, 0, canvas.width, canvas.height);
+            
+            // Título
+            ctx.fillStyle = '#FF6500';
+            ctx.font = 'bold 36px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('📍 UBICACIÓN GPS', canvas.width / 2, 60);
+            
+            // Marcador grande en el centro
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            // Círculo del marcador
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 60, 0, 2 * Math.PI);
+            ctx.fillStyle = '#FF0000';
+            ctx.fill();
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 8;
+            ctx.stroke();
+            
+            // Punto blanco en el centro
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 20, 0, 2 * Math.PI);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fill();
+            
+            // Coordenadas
+            ctx.fillStyle = '#000000';
+            ctx.font = 'bold 28px Arial';
+            ctx.fillText('COORDENADAS:', canvas.width / 2, canvas.height - 150);
+            
+            ctx.font = '24px Arial';
+            ctx.fillText(`Latitud: ${lat.toFixed(6)}`, canvas.width / 2, canvas.height - 110);
+            ctx.fillText(`Longitud: ${lng.toFixed(6)}`, canvas.width / 2, canvas.height - 70);
+            
+            ctx.font = '20px Arial';
+            ctx.fillStyle = '#666666';
+            ctx.fillText(`Precisión: ${ubicacionActual.precision.toFixed(0)} metros`, canvas.width / 2, canvas.height - 30);
+            
+            ubicacionActual.mapaImagen = canvas.toDataURL('image/png');
+            console.log('✅ Placeholder del mapa generado');
+            
+            // Actualizar el status
+            const status = document.getElementById('ubicacionStatus');
+            if (status) {
+                status.textContent = '✅ Ubicación lista (mapa no disponible)';
+                status.style.color = '#2e7d32';
+            }
+        }
+
+        // Función para manejar el tipo de autorización del cliente
+        function toggleAutorizacion() {
+            const tipoAutorizacion = document.querySelector('input[name="tipoAutorizacion"]:checked').value;
+            const canvasContainer = document.getElementById('canvasAutorizacionContainer');
+            const motivoContainer = document.getElementById('motivoNoAutorizacion');
+            const instruccion = document.getElementById('instruccionAutorizacion');
+            const btnTomarHuellaContainer = document.getElementById('btnTomarHuellaContainer');
+            const btnMejorarHuella = document.getElementById('mejorarHuellaBtn');
+            const signatureCanvas = document.getElementById('signatureCanvas');
+            const ctx = signatureCanvas.getContext('2d');
+            
+            // Limpiar canvas
+            ctx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
+            
+            if (tipoAutorizacion === 'Firma') {
+                canvasContainer.style.display = 'block';
+                motivoContainer.style.display = 'none';
+                btnTomarHuellaContainer.style.display = 'none';
+                btnMejorarHuella.style.display = 'none';
+                instruccion.textContent = 'El cliente debe firmar aquí para confirmar la información';
+            } else if (tipoAutorizacion === 'Huella Dactilar') {
+                canvasContainer.style.display = 'block';
+                motivoContainer.style.display = 'none';
+                btnTomarHuellaContainer.style.display = 'block';
+                btnMejorarHuella.style.display = 'inline-block';
+                instruccion.textContent = '👆 Tome una foto de la huella dactilar del cliente con el botón de abajo, o dibújela manualmente';
+            } else if (tipoAutorizacion === 'No Autorizó') {
+                canvasContainer.style.display = 'none';
+                motivoContainer.style.display = 'block';
+                btnTomarHuellaContainer.style.display = 'none';
+                btnMejorarHuella.style.display = 'none';
+            }
+        }
+        
+        // Función para mejorar el contraste de la huella aún más
+        function mejorarHuella() {
+            const canvas = document.getElementById('signatureCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            
+            // Aplicar umbral para hacer blanco y negro puro (como huella escaneada)
+            for (let i = 0; i < data.length; i += 4) {
+                const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+                
+                // Umbral: si es más claro que 128, hazlo blanco; si no, negro
+                const threshold = 140; // Puedes ajustar este valor
+                const value = gray > threshold ? 255 : 0;
+                
+                data[i] = value;     // R
+                data[i + 1] = value; // G
+                data[i + 2] = value; // B
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+            console.log('✨ Contraste de huella mejorado al máximo');
+        }
+        
+        // Función para cargar imagen de huella desde la cámara o galería
+        function cargarImagenHuella(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.getElementById('signatureCanvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Limpiar canvas
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Calcular dimensiones para mantener aspecto y ajustar al canvas
+                    const canvasAspect = canvas.width / canvas.height;
+                    const imgAspect = img.width / img.height;
+                    
+                    let drawWidth, drawHeight, offsetX, offsetY;
+                    
+                    if (imgAspect > canvasAspect) {
+                        // Imagen más ancha que el canvas
+                        drawWidth = canvas.width;
+                        drawHeight = canvas.width / imgAspect;
+                        offsetX = 0;
+                        offsetY = (canvas.height - drawHeight) / 2;
+                    } else {
+                        // Imagen más alta que el canvas
+                        drawHeight = canvas.height;
+                        drawWidth = canvas.height * imgAspect;
+                        offsetX = (canvas.width - drawWidth) / 2;
+                        offsetY = 0;
+                    }
+                    
+                    // Dibujar imagen centrada en el canvas
+                    ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+                    
+                    // APLICAR FILTROS PARA MEJORAR LA HUELLA
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imageData.data;
+                    
+                    // Convertir a escala de grises y aumentar contraste
+                    for (let i = 0; i < data.length; i += 4) {
+                        // Convertir a escala de grises
+                        const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+                        
+                        // Aumentar contraste (hacer más blanco o más negro)
+                        const contrast = 1.5; // Factor de contraste
+                        const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+                        let adjusted = factor * (gray - 128) + 128;
+                        
+                        // Umbral para hacer más definido (opcional)
+                        // adjusted = adjusted > 128 ? 255 : 0; // Descomenta para efecto más fuerte
+                        
+                        // Limitar valores
+                        adjusted = Math.max(0, Math.min(255, adjusted));
+                        
+                        data[i] = adjusted;     // R
+                        data[i + 1] = adjusted; // G
+                        data[i + 2] = adjusted; // B
+                        // data[i + 3] se mantiene (alpha)
+                    }
+                    
+                    // Aplicar la imagen procesada
+                    ctx.putImageData(imageData, 0, 0);
+                    
+                    console.log('✅ Imagen de huella cargada y optimizada');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Variable para almacenar múltiples lecturas de GPS
+        let lecturasGPS = [];
+        let watchId = null;
+        let timeoutId = null;
+        let mejorLectura = null;
+        
+        function obtenerUbicacionActual() {
+            const btn = document.getElementById('btnObtenerUbicacion');
+            const status = document.getElementById('ubicacionStatus');
+            const mapaContainer = document.getElementById('mapaUbicacionContainer');
+            
+            if (!navigator.geolocation) {
+                status.textContent = '❌ La geolocalización no está disponible en este navegador';
+                status.style.color = '#d32f2f';
+                return;
+            }
+            
+            // Limpiar cualquier watch anterior
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            }
+            
+            // Reiniciar variables
+            lecturasGPS = [];
+            mejorLectura = null;
+            let lecturasRealizadas = 0;
+            const maxLecturas = 6; // Máximo 6 lecturas
+            const tiempoMaximo = 8000; // 8 segundos máximo
+            
+            // Mostrar estado de carga
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span> Obteniendo ubicación precisa...';
+            status.textContent = '🎯 Calibrando GPS de alta precisión...';
+            status.style.color = '#ff6500';
+            
+            const tiempoInicio = Date.now();
+            
+            // Usar watchPosition directamente para obtener múltiples lecturas continuas
+            watchId = navigator.geolocation.watchPosition(
+                function(position) {
+                    lecturasRealizadas++;
+                    
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const accuracy = position.coords.accuracy;
+                    const tiempoTranscurrido = ((Date.now() - tiempoInicio) / 1000).toFixed(1);
+                    
+                    console.log(`📍 Lectura ${lecturasRealizadas}: ${accuracy.toFixed(1)}m (${tiempoTranscurrido}s)`);
+                    
+                    // Agregar lectura si tiene precisión aceptable (< 200m)
+                    if (accuracy < 200) {
+                        const lectura = {
+                            lat: lat,
+                            lng: lng,
+                            accuracy: accuracy,
+                            altitude: position.coords.altitude,
+                            altitudeAccuracy: position.coords.altitudeAccuracy,
+                            heading: position.coords.heading,
+                            speed: position.coords.speed,
+                            timestamp: Date.now()
+                        };
+                        
+                        lecturasGPS.push(lectura);
+                        
+                        // Actualizar mejor lectura
+                        if (!mejorLectura || accuracy < mejorLectura.accuracy) {
+                            mejorLectura = lectura;
+                            console.log(`✨ Nueva mejor precisión: ${accuracy.toFixed(1)}m`);
+                        }
+                        
+                        // Mostrar progreso
+                        status.textContent = `🎯 ${lecturasGPS.length} lecturas - Mejor: ${mejorLectura.accuracy.toFixed(1)}m`;
+                        
+                        // Condiciones para finalizar RÁPIDO:
+                        // 1. Precisión perfecta (< 8m) con 2+ lecturas
+                        if (accuracy < 8 && lecturasGPS.length >= 2) {
+                            console.log('🎯 Precisión PERFECTA alcanzada');
+                            finalizarCaptura();
+                            return;
+                        }
+                        
+                        // 2. Precisión excelente (< 12m) con 3+ lecturas
+                        if (accuracy < 12 && lecturasGPS.length >= 3) {
+                            console.log('🎯 Precisión EXCELENTE alcanzada');
+                            finalizarCaptura();
+                            return;
+                        }
+                        
+                        // 3. Precisión muy buena (< 20m) con 4+ lecturas
+                        if (accuracy < 20 && lecturasGPS.length >= 4) {
+                            console.log('✅ Precisión MUY BUENA alcanzada');
+                            finalizarCaptura();
+                            return;
+                        }
+                        
+                        // 4. Máximo de lecturas alcanzado
+                        if (lecturasGPS.length >= maxLecturas) {
+                            console.log('📊 Máximo de lecturas alcanzado');
+                            finalizarCaptura();
+                            return;
+                        }
+                    } else {
+                        console.log(`⚠️ Lectura descartada: ${accuracy.toFixed(1)}m (muy imprecisa)`);
+                    }
+                },
+                function(error) {
+                    // Error al obtener ubicación
+                    if (lecturasGPS.length > 0) {
+                        // Si ya tenemos alguna lectura, usarla
+                        console.log('⚠️ Error en GPS, usando lecturas disponibles');
+                        finalizarCaptura();
+                        return;
+                    }
+                    
+                    let errorMsg = '';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMsg = '❌ Permiso denegado. Active el GPS en configuración.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMsg = '❌ GPS no disponible. Salga al exterior para mejor señal.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMsg = '❌ GPS no responde. Intente en un lugar abierto.';
+                            break;
+                        default:
+                            errorMsg = '❌ Error de GPS. Intente nuevamente.';
+                            break;
+                    }
+                    
+                    status.textContent = errorMsg;
+                    status.style.color = '#d32f2f';
+                    
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>📍</span> Obtener Ubicación Actual';
+                },
+                {
+                    enableHighAccuracy: true,      // GPS de alta precisión (NO WiFi/Cell)
+                    timeout: 6000,                 // 6 segundos por lectura
+                    maximumAge: 0                  // Siempre coordenadas frescas
+                }
+            );
+            
+            // Timeout de seguridad: finalizar después de 8 segundos con lo que tengamos
+            timeoutId = setTimeout(() => {
+                if (lecturasGPS.length > 0) {
+                    console.log(`⏱️ Timeout (8s) - Finalizando con ${lecturasGPS.length} lecturas`);
+                    finalizarCaptura();
+                } else {
+                    // No hay lecturas después de 8 segundos
+                    if (watchId) {
+                        navigator.geolocation.clearWatch(watchId);
+                        watchId = null;
+                    }
+                    status.textContent = '❌ No se pudo obtener señal GPS. Intente en exterior.';
+                    status.style.color = '#d32f2f';
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>📍</span> Obtener Ubicación Actual';
+                }
+            }, tiempoMaximo);
+        }
+        
+        function finalizarCaptura() {
+            const btn = document.getElementById('btnObtenerUbicacion');
+            const status = document.getElementById('ubicacionStatus');
+            const mapaContainer = document.getElementById('mapaUbicacionContainer');
+            
+            // Detener el watchPosition y timeouts
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            }
+            
+            if (lecturasGPS.length === 0) {
+                status.textContent = '❌ No se pudo capturar GPS. Intente en exterior.';
+                status.style.color = '#d32f2f';
+                btn.disabled = false;
+                btn.innerHTML = '<span>📍</span> Obtener Ubicación Actual';
+                return;
+            }
+            
+            // Ordenar por precisión (menor accuracy = mejor)
+            lecturasGPS.sort((a, b) => a.accuracy - b.accuracy);
+            
+            // ALGORITMO INTELIGENTE: Usar las mejores lecturas según cantidad disponible
+            let mejoresLecturas;
+            if (lecturasGPS.length === 1) {
+                // Solo 1 lectura: usarla directamente
+                mejoresLecturas = lecturasGPS;
+            } else if (lecturasGPS.length === 2) {
+                // 2 lecturas: promediar ambas si son similares
+                if (lecturasGPS[1].accuracy < lecturasGPS[0].accuracy * 2) {
+                    mejoresLecturas = lecturasGPS;
+                } else {
+                    mejoresLecturas = [lecturasGPS[0]]; // Solo la mejor
+                }
+            } else {
+                // 3+ lecturas: tomar las 3 mejores y promediarlas
+                mejoresLecturas = lecturasGPS.slice(0, Math.min(4, lecturasGPS.length));
+                // Filtrar outliers: solo usar lecturas con precisión similar a la mejor
+                mejoresLecturas = mejoresLecturas.filter(l => l.accuracy < lecturasGPS[0].accuracy * 2.5);
+            }
+            
+            // Calcular promedio ponderado (dar más peso a lecturas más precisas)
+            let sumLat = 0, sumLng = 0, sumPesos = 0;
+            
+            mejoresLecturas.forEach(lectura => {
+                // Peso inversamente proporcional a accuracy (más precisión = más peso)
+                const peso = 1 / (lectura.accuracy + 1);
+                sumLat += lectura.lat * peso;
+                sumLng += lectura.lng * peso;
+                sumPesos += peso;
+            });
+            
+            const lat = sumLat / sumPesos;
+            const lng = sumLng / sumPesos;
+            const accuracy = mejoresLecturas[0].accuracy; // Usar la mejor precisión conseguida
+            
+            console.log(`✅ UBICACIÓN FINAL:`);
+            console.log(`   📍 Lat: ${lat.toFixed(8)}`);
+            console.log(`   📍 Lng: ${lng.toFixed(8)}`);
+            console.log(`   🎯 Precisión: ${accuracy.toFixed(1)}m`);
+            console.log(`   📊 ${mejoresLecturas.length} mejores de ${lecturasGPS.length} lecturas`);
+            
+            ubicacionActual = {
+                latitud: lat,
+                longitud: lng,
+                precision: accuracy,
+                timestamp: new Date().toISOString(),
+                lecturas: lecturasGPS.length,
+                altitud: mejoresLecturas[0].altitude,
+                altitudPrecision: mejoresLecturas[0].altitudeAccuracy
+            };
+            
+            // Zoom dinámico según precisión
+            let zoomLevel = 18;
+            let bboxSize = 0.0008; // Muy cercano por defecto
+            
+            if (accuracy > 50) {
+                zoomLevel = 16;
+                bboxSize = 0.002;
+            } else if (accuracy > 20) {
+                zoomLevel = 17;
+                bboxSize = 0.001;
+            }
+            
+            // Actualizar el mapa con OpenStreetMap
+            const mapaIframe = document.getElementById('mapaUbicacion');
+            mapaIframe.src = `https://www.openstreetmap.org/export/embed.html?bbox=${lng-bboxSize},${lat-bboxSize},${lng+bboxSize},${lat+bboxSize}&layer=mapnik&marker=${lat},${lng}`;
+            
+            // URL de imagen estática para el PDF con zoom apropiado
+            ubicacionActual.mapaImagenUrl = `https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lng}&zoom=${zoomLevel}&size=800x500&markers=${lat},${lng},red-pushpin`;
+            
+            // Indicador de calidad visual
+            let icono = '';
+            let precisionTexto = '';
+            let colorPrecision = '#4caf50';
+            
+            if (accuracy < 8) {
+                icono = '🎯';
+                precisionTexto = 'PERFECTA';
+                colorPrecision = '#00c853';
+            } else if (accuracy < 15) {
+                icono = '🎯';
+                precisionTexto = 'EXCELENTE';
+                colorPrecision = '#4caf50';
+            } else if (accuracy < 25) {
+                icono = '✅';
+                precisionTexto = 'MUY BUENA';
+                colorPrecision = '#66bb6a';
+            } else if (accuracy < 50) {
+                icono = '✅';
+                precisionTexto = 'BUENA';
+                colorPrecision = '#9ccc65';
+            } else if (accuracy < 100) {
+                icono = '⚠️';
+                precisionTexto = 'ACEPTABLE';
+                colorPrecision = '#ffa726';
+            } else {
+                icono = '⚠️';
+                precisionTexto = 'BAJA';
+                colorPrecision = '#ff7043';
+            }
+            
+            // Mostrar coordenadas con máxima precisión
+            document.getElementById('coordenadasTexto').textContent = 
+                `Lat: ${lat.toFixed(8)}, Lng: ${lng.toFixed(8)}\n${icono} ${accuracy.toFixed(1)}m - Precisión ${precisionTexto}`;
+            
+            // Mostrar el contenedor del mapa
+            mapaContainer.style.display = 'block';
+            
+            // Actualizar estado con color según precisión
+            status.textContent = `${icono} GPS capturado: ${accuracy.toFixed(1)}m (${precisionTexto})`;
+            status.style.color = colorPrecision;
+            
+            // Pre-cargar la imagen del mapa estático
+            cargarImagenMapaEstatico(lat, lng);
+            
+            // Restaurar botón
+            btn.disabled = false;
+            btn.innerHTML = '<span>📍</span> Actualizar Ubicación';
+        }
+
         class VisitFormApp {
             constructor() {
                 this.currentStep = 1;
@@ -2918,7 +3646,924 @@
         window.calcularTotalVenta = calcularTotalVenta;
         window.calcularTotalCostos = calcularTotalCostos;
 
-        // Función para generar PDF
+        // Función para generar PDF completo con iframe de mapa (método HTML + print) - VERSIÓN MEJORADA
+        async function generarPDFConMapa() {
+            console.log('🚀 Generando PDF completo con mapa y carta...');
+            
+            const fechaHoy = new Date();
+            const fecha = fechaHoy.toLocaleDateString('es-GT', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            const fechaCorta = fechaHoy.toLocaleDateString('es-GT');
+            
+            // Obtener canvas de croquis y firmas
+            const canvasVivienda = document.getElementById('sketchCanvas');
+            const canvasUbicacion = document.getElementById('locationCanvas');
+            const canvasSignature = document.getElementById('signatureCanvas');
+            const canvasVerifierSignature = document.getElementById('verifierSignatureCanvas');
+            
+            let croquisViviendaImg = '';
+            let croquisUbicacionImg = '';
+            let signatureImg = '';
+            let verifierSignatureImg = '';
+            
+            if (canvasVivienda) {
+                try {
+                    croquisViviendaImg = canvasVivienda.toDataURL('image/png');
+                    console.log('✅ Croquis vivienda capturado');
+                } catch(e) {
+                    console.error('❌ Error al capturar croquis vivienda:', e);
+                }
+            }
+            
+            if (canvasUbicacion) {
+                try {
+                    croquisUbicacionImg = canvasUbicacion.toDataURL('image/png');
+                    console.log('✅ Croquis ubicación capturado');
+                } catch(e) {
+                    console.error('❌ Error al capturar croquis ubicación:', e);
+                }
+            }
+            
+            if (canvasSignature) {
+                try {
+                    signatureImg = canvasSignature.toDataURL('image/png');
+                    console.log('✅ Firma del cliente capturada');
+                } catch(e) {
+                    console.error('❌ Error al capturar firma del cliente:', e);
+                }
+            }
+            
+            if (canvasVerifierSignature) {
+                try {
+                    verifierSignatureImg = canvasVerifierSignature.toDataURL('image/png');
+                    console.log('✅ Firma del verificador capturada');
+                } catch(e) {
+                    console.error('❌ Error al capturar firma del verificador:', e);
+                }
+            }
+            
+            // Recopilar TODOS los datos del formulario con verificación
+            console.log('🔍 Recopilando datos del formulario...');
+            
+            // Función auxiliar para obtener valor y loguearlo
+            const obtenerValor = (id, nombre = id) => {
+                const elemento = document.getElementById(id);
+                const valor = elemento?.value || '';
+                console.log(`  ${nombre}: "${valor}" ${valor ? '✅' : '⚠️ VACÍO'}`);
+                return valor;
+            };
+            
+            const obtenerRadio = (name, nombre = name) => {
+                const elemento = document.querySelector(`input[name="${name}"]:checked`);
+                const valor = elemento?.value || '';
+                console.log(`  ${nombre}: "${valor}" ${valor ? '✅' : '⚠️ NO SELECCIONADO'}`);
+                return valor;
+            };
+            
+            const obtenerCheckboxes = (name, nombre = name) => {
+                const elementos = Array.from(document.querySelectorAll(`input[name="${name}"]:checked`));
+                const valores = elementos.map(el => el.value).join(', ');
+                console.log(`  ${nombre}: "${valores}" ${valores ? '✅' : '⚠️ NINGUNO'}`);
+                return valores;
+            };
+            
+            const datos = {
+                // Información básica (Paso 1)
+                fechaVisita: obtenerValor('fechaVisita', 'Fecha Visita'),
+                tipoVerificacion: obtenerValor('tipoVerificacion', 'Tipo Verificación'),
+                montoSolicitado: obtenerValor('montoSolicitado', 'Monto Solicitado'),
+                nombrePropietario: obtenerValor('nombrePropietario', 'Nombre Propietario'),
+                contadorFisico: obtenerValor('contadorFisico', 'Contador Físico'),
+                direccion: obtenerValor('direccion', 'Dirección'),
+                personaAtiende: obtenerValor('personaAtiende', 'Persona que Atendió'),
+                parentesco: obtenerValor('parentesco', 'Parentesco'),
+                tiempoResidencia: obtenerValor('tiempoResidencia', 'Tiempo Residencia'),
+                cui: obtenerValor('cui', 'CUI/DPI'),
+                telefonoCelular: obtenerValor('telefonoCelular', 'Teléfono Celular'),
+                formaAdquisicion: obtenerValor('formaAdquisicion', 'Forma Adquisición'),
+                quienesViven: obtenerValor('quienesViven', 'Quiénes Viven'),
+                dimensionesInmueble: obtenerValor('dimensionesInmueble', 'Dimensiones Inmueble'),
+                destinoCredito: obtenerValor('destinoCredito', 'Destino Crédito'),
+                otroDestino: obtenerValor('otroDestino', 'Otro Destino'),
+                
+                // Información de la vivienda (Paso 2)
+                tipoVivienda: obtenerRadio('tipoVivienda', 'Tipo Vivienda'),
+                materialParedes: obtenerValor('materialParedes', 'Material Paredes'),
+                materialTecho: obtenerValor('materialTecho', 'Material Techo'),
+                materialPiso: obtenerValor('materialPiso', 'Material Piso'),
+                numeroHabitaciones: obtenerValor('numeroHabitaciones', 'Número Habitaciones'),
+                numeroBanos: obtenerValor('numeroBanos', 'Número Baños'),
+                serviciosBasicos: obtenerCheckboxes('servicios', 'Servicios Disponibles'),
+                condicionVivienda: obtenerRadio('condicionVivienda', 'Condición Vivienda'),
+                formaIngresoGarita: obtenerValor('formaIngresoGarita', 'Forma Ingreso Garita'),
+                detalleCodigo: obtenerValor('detalleCodigo', 'Código Acceso'),
+                detalleMarbete: obtenerValor('detalleMarbete', 'Marbete'),
+                detalleEntradaLibre: obtenerValor('detalleEntradaLibre', 'Entrada Libre Detalles'),
+                
+                // Información de inquilinos (Paso 3)
+                contratoArrendamiento: obtenerRadio('contratoArrendamiento', 'Contrato Arrendamiento'),
+                aPagarRenta: obtenerValor('aPagarRenta', 'A Pagar Renta'),
+                valorRenta: obtenerValor('valorRenta', 'Valor Renta'),
+                tiempoResidenciaInquilino: obtenerValor('tiempoResidenciaInquilino', 'Tiempo Residencia Inquilino'),
+                formaPago: obtenerValor('formaPago', 'Forma de Pago'),
+                comentariosInquilino: obtenerValor('comentariosInquilino', 'Comentarios Inquilino'),
+                
+                // Información del negocio (Paso 4)
+                nombreNegocio: obtenerValor('nombreNegocio', 'Nombre Negocio'),
+                patenteComercio: obtenerValor('patenteComercio', 'Patente Comercio'),
+                giroNegocio: obtenerValor('giroNegocio', 'Giro Negocio'),
+                direccionNegocio: obtenerValor('direccionNegocio', 'Dirección Negocio'),
+                tipoLocal: obtenerRadio('tipoLocal', 'Tipo de Local'),
+                pagoMensualLocal: obtenerValor('pagoMensualLocal', 'Pago Mensual Local'),
+                tiempoOperacion: obtenerValor('tiempoOperacion', 'Tiempo Operación'),
+                numeroEmpleados: obtenerValor('numeroEmpleados', 'Número Empleados'),
+                ingresosMensuales: obtenerValor('ingresosMensuales', 'Ingresos Mensuales'),
+                pagoMensualNegocio: obtenerValor('pagoMensualNegocio', 'Pago Mensual Negocio'),
+                estadoFisicoInterior: obtenerRadio('estadoFisicoInterior', 'Estado Físico Interior'),
+                estadoFisicoExterior: obtenerRadio('estadoFisicoExterior', 'Estado Físico Exterior'),
+                
+                // Costos Fijos
+                costoAgua: obtenerValor('costoAgua', 'Costo Agua'),
+                costoLuz: obtenerValor('costoLuz', 'Costo Luz'),
+                costoAlquiler: obtenerValor('costoAlquiler', 'Costo Alquiler'),
+                costoTelefono: obtenerValor('costoTelefono', 'Costo Teléfono'),
+                costoBasura: obtenerValor('costoBasura', 'Costo Basura'),
+                totalCostosFijos: obtenerValor('totalCostosFijos', 'Total Costos Fijos'),
+                
+                // Resumen Financiero
+                totalVentasMes: obtenerValor('totalVentasMes', 'Total Ventas Mes'),
+                costoTotalMes: obtenerValor('costoTotalMes', 'Costo Total Mes'),
+                utilidadNeta: obtenerValor('utilidadNeta', 'Utilidad Neta'),
+                
+                // Información de empleo (Paso 5)
+                nombreEmpresa: obtenerValor('nombreEmpresa', 'Nombre Empresa'),
+                direccionEmpresa: obtenerValor('direccionEmpresa', 'Dirección Empresa'),
+                igss: obtenerRadio('igss', 'IGSS'),
+                puestoTrabajo: obtenerValor('puestoTrabajo', 'Puesto Trabajo'),
+                salario: obtenerValor('salario', 'Salario'),
+                fechaIngreso: obtenerValor('fechaIngreso', 'Fecha Ingreso'),
+                telefonoEmpresa: obtenerValor('telefonoEmpresa', 'Teléfono Empresa'),
+                
+                // Verificación y observaciones (Paso 6)
+                observacionesGenerales: obtenerValor('observacionesGenerales', 'Observaciones Generales'),
+                verificador: obtenerValor('verificador', 'Verificador'),
+                croquisViviendaObservaciones: obtenerValor('croquisViviendaObservaciones', 'Observaciones Croquis Vivienda'),
+                
+                // Tipo de autorización del cliente
+                tipoAutorizacion: obtenerRadio('tipoAutorizacion', 'Tipo de Autorización'),
+                motivoNoAutorizo: obtenerValor('motivoNoAutorizo', 'Motivo No Autorizó')
+            };
+            
+            // Capturar datos dinámicos (arrays)
+            console.log('📋 Capturando datos dinámicos...');
+            
+            // Proveedores
+            const proveedores = [];
+            const proveedoresNombres = document.querySelectorAll('input[name="proveedor[]"]');
+            const proveedoresMontos = document.querySelectorAll('input[name="montoProveedor[]"]');
+            for (let i = 0; i < proveedoresNombres.length; i++) {
+                if (proveedoresNombres[i].value || proveedoresMontos[i].value) {
+                    proveedores.push({
+                        nombre: proveedoresNombres[i].value,
+                        monto: proveedoresMontos[i].value
+                    });
+                }
+            }
+            console.log(`  Proveedores: ${proveedores.length}`);
+            
+            // Mobiliario
+            const mobiliario = [];
+            const mobiliarioDesc = document.querySelectorAll('input[name="mobiliario[]"]');
+            const mobiliarioValor = document.querySelectorAll('input[name="valorMobiliario[]"]');
+            for (let i = 0; i < mobiliarioDesc.length; i++) {
+                if (mobiliarioDesc[i].value || mobiliarioValor[i].value) {
+                    mobiliario.push({
+                        descripcion: mobiliarioDesc[i].value,
+                        valor: mobiliarioValor[i].value
+                    });
+                }
+            }
+            console.log(`  Mobiliario: ${mobiliario.length}`);
+            
+            // Mercadería
+            const mercaderia = [];
+            const mercaderiaDesc = document.querySelectorAll('input[name="mercaderia[]"]');
+            const mercaderiaValor = document.querySelectorAll('input[name="valorMercaderia[]"]');
+            for (let i = 0; i < mercaderiaDesc.length; i++) {
+                if (mercaderiaDesc[i].value || mercaderiaValor[i].value) {
+                    mercaderia.push({
+                        descripcion: mercaderiaDesc[i].value,
+                        valor: mercaderiaValor[i].value
+                    });
+                }
+            }
+            console.log(`  Mercadería: ${mercaderia.length}`);
+            
+            // Inventario
+            const inventario = [];
+            const inventarioDesc = document.querySelectorAll('input[name="productoDescripcion[]"]');
+            const inventarioCant = document.querySelectorAll('input[name="productoCantidad[]"]');
+            const inventarioCompra = document.querySelectorAll('input[name="productoCompra[]"]');
+            const inventarioVenta = document.querySelectorAll('input[name="productoVenta[]"]');
+            const inventarioTotal = document.querySelectorAll('input[name="productoTotalVenta[]"]');
+            for (let i = 0; i < inventarioDesc.length; i++) {
+                if (inventarioDesc[i].value || inventarioCant[i].value) {
+                    inventario.push({
+                        descripcion: inventarioDesc[i].value,
+                        cantidad: inventarioCant[i].value,
+                        compra: inventarioCompra[i].value,
+                        venta: inventarioVenta[i].value,
+                        total: inventarioTotal[i].value
+                    });
+                }
+            }
+            console.log(`  Inventario: ${inventario.length} productos`);
+            
+            // Otros Gastos
+            const otrosGastos = [];
+            const gastosDesc = document.querySelectorAll('input[name="descripcionGasto[]"]');
+            const gastosMonto = document.querySelectorAll('input[name="montoGasto[]"]');
+            for (let i = 0; i < gastosDesc.length; i++) {
+                if (gastosDesc[i].value || gastosMonto[i].value) {
+                    otrosGastos.push({
+                        descripcion: gastosDesc[i].value,
+                        monto: gastosMonto[i].value
+                    });
+                }
+            }
+            console.log(`  Otros Gastos: ${otrosGastos.length}`);
+            
+            // Agregar arrays al objeto datos
+            datos.proveedores = proveedores;
+            datos.mobiliario = mobiliario;
+            datos.mercaderia = mercaderia;
+            datos.inventario = inventario;
+            datos.otrosGastos = otrosGastos;
+            
+            console.log('✅ TODOS los datos capturados exitosamente');
+            
+            // Obtener fotos
+            const fotos = window.app?.photos || [];
+            console.log(`📸 Fotos encontradas: ${fotos.length}`);
+            
+            // Preparar HTML de fotos - IMÁGENES COMPLETAS SIN CORTAR
+            let fotosHTML = '';
+            if (fotos.length > 0) {
+                fotosHTML = '<div style="margin: 15px 0;"><h3 style="font-size: 13px; color: #FF6500; margin-bottom: 10px; font-weight: bold;">📸 Evidencia Fotográfica</h3><div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">';
+                fotos.slice(0, 9).forEach(foto => {
+                    const imgSrc = foto.data || foto;
+                    fotosHTML += `<div style="border: 2px solid #FF6500; border-radius: 5px; padding: 3px; background: white;"><img src="${imgSrc}" style="width: 100%; height: auto; display: block; object-fit: contain;"></div>`;
+                });
+                fotosHTML += '</div></div>';
+            }
+            
+            // Preparar HTML de croquis - AMBOS CROQUIS COMPLETOS
+            let croquisViviendaHTML = '';
+            let croquisUbicacionHTML = '';
+            
+            if (croquisViviendaImg) {
+                croquisViviendaHTML = `<div style="margin: 10px 0;">
+                    <h3 style="font-size: 13px; color: #FF6500; margin-bottom: 8px; font-weight: bold;">🗺️ Croquis de Vivienda</h3>
+                    <div style="border: 2px solid #FF6500; border-radius: 5px; padding: 5px; background: white;">
+                        <img src="${croquisViviendaImg}" style="width: 100%; height: auto; display: block; object-fit: contain;">
+                    </div>
+                </div>`;
+            }
+            
+            if (croquisUbicacionImg) {
+                croquisUbicacionHTML = `<div style="margin: 10px 0;">
+                    <h3 style="font-size: 13px; color: #FF6500; margin-bottom: 8px; font-weight: bold;">🗺️ Croquis de Ubicación</h3>
+                    <div style="border: 2px solid #FF6500; border-radius: 5px; padding: 5px; background: white;">
+                        <img src="${croquisUbicacionImg}" style="width: 100%; height: auto; display: block; object-fit: contain;">
+                    </div>
+                </div>`;
+            }
+            
+            // Preparar HTML del mapa GPS
+            let mapaHTML = '';
+            if (ubicacionActual) {
+                mapaHTML = `
+                    <div style="margin: 10px 0;">
+                        <h3 style="font-size: 11px; color: #FF6500; margin-bottom: 5px;">📍 Ubicación GPS</h3>
+                        <div style="border: 2px solid #FF6500; border-radius: 5px; overflow: hidden;">
+                            <iframe 
+                                width="100%" 
+                                height="250" 
+                                frameborder="0" 
+                                style="border:0; display: block;" 
+                                src="https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${ubicacionActual.latitud},${ubicacionActual.longitud}&zoom=18&maptype=satellite"
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                        <p style="font-size: 8px; margin: 5px 0; text-align: center;">
+                            <strong>Coordenadas:</strong> Lat: ${ubicacionActual.latitud.toFixed(6)}, Lng: ${ubicacionActual.longitud.toFixed(6)} 
+                            (Precisión: ${ubicacionActual.precision.toFixed(0)}m)
+                        </p>
+                    </div>
+                `;
+            }
+            
+            console.log('🖥️ Abriendo ventana de impresión...');
+            
+            // Crear ventana de impresión
+            const printWindow = window.open('', '_blank', 'width=900,height=800');
+            
+            if (!printWindow) {
+                alert('⚠️ No se pudo abrir la ventana. Por favor, permita ventanas emergentes.');
+                return;
+            }
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Formulario Verificación - ${datos.nombrePropietario || 'Sin nombre'}</title>
+                    <style>
+                        @page { 
+                            size: letter; 
+                            margin: 15mm; 
+                        }
+                        * {
+                            box-sizing: border-box;
+                        }
+                        body { 
+                            font-family: 'Arial', sans-serif; 
+                            font-size: 9px; 
+                            margin: 0; 
+                            padding: 15px;
+                            line-height: 1.4;
+                            color: #333;
+                        }
+                        .header {
+                            text-align: center;
+                            margin-bottom: 15px;
+                            border-bottom: 3px solid #FF6500;
+                            padding-bottom: 10px;
+                        }
+                        h1 { 
+                            color: #FF6500; 
+                            font-size: 18px; 
+                            margin: 0 0 5px 0;
+                            font-weight: bold;
+                            text-transform: uppercase;
+                        }
+                        .fecha-verificacion {
+                            font-size: 10px;
+                            color: #666;
+                            margin: 5px 0;
+                        }
+                        .seccion { 
+                            margin-bottom: 12px;
+                            page-break-inside: avoid;
+                        }
+                        h2 { 
+                            color: #FF6500; 
+                            font-size: 12px;
+                            font-weight: bold;
+                            border-left: 4px solid #FF6500;
+                            padding-left: 8px;
+                            margin: 8px 0 6px 0;
+                            background: #FFF5E6;
+                            padding: 5px 8px;
+                        }
+                        table { 
+                            width: 100%; 
+                            border-collapse: collapse; 
+                            margin: 6px 0;
+                            font-size: 9px;
+                        }
+                        th, td { 
+                            border: 1px solid #ddd; 
+                            padding: 5px 8px; 
+                            text-align: left; 
+                            vertical-align: top; 
+                        }
+                        th { 
+                            background-color: #FFF5E6; 
+                            font-weight: bold;
+                            color: #FF6500;
+                            width: 30%;
+                        }
+                        td {
+                            background-color: white;
+                        }
+                        .carta-container {
+                            page-break-before: always;
+                            position: relative;
+                            width: 100%;
+                            min-height: 100vh;
+                        }
+                        .carta-img {
+                            width: 100%;
+                            height: auto;
+                            display: block;
+                        }
+                        .texto-sobrepuesto {
+                            position: absolute;
+                            font-size: 12px;
+                            font-weight: bold;
+                            color: black;
+                            font-family: Arial, sans-serif;
+                        }
+                        @media print {
+                            body { 
+                                margin: 0; 
+                                padding: 15px; 
+                            }
+                            .no-print { 
+                                display: none !important; 
+                            }
+                            .seccion {
+                                page-break-inside: avoid;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>📋 FORMULARIO DE VERIFICACIÓN</h1>
+                        <div class="fecha-verificacion">
+                            <strong>Fecha:</strong> ${fecha} | 
+                            <strong>Tipo:</strong> ${datos.tipoVerificacion || 'No especificado'}
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <h2>👤 INFORMACIÓN PERSONAL Y VISITA</h2>
+                        <table>
+                            <tr>
+                                <th>Nombre del Propietario</th>
+                                <td colspan="3">${datos.nombrePropietario}</td>
+                            </tr>
+                            <tr>
+                                <th>CUI / DPI</th>
+                                <td>${datos.cui}</td>
+                                <th>Teléfono Celular</th>
+                                <td>${datos.telefonoCelular}</td>
+                            </tr>
+                            <tr>
+                                <th>Dirección</th>
+                                <td colspan="3">${datos.direccion}</td>
+                            </tr>
+                            <tr>
+                                <th>Persona que Atendió</th>
+                                <td>${datos.personaAtiende}</td>
+                                <th>Parentesco</th>
+                                <td>${datos.parentesco}</td>
+                            </tr>
+                            <tr>
+                                <th>Tiempo de Residencia</th>
+                                <td>${datos.tiempoResidencia}</td>
+                                <th>Contador Físico</th>
+                                <td>${datos.contadorFisico}</td>
+                            </tr>
+                            <tr>
+                                <th>Forma de Adquisición</th>
+                                <td>${datos.formaAdquisicion}</td>
+                                <th>Dimensiones Inmueble</th>
+                                <td>${datos.dimensionesInmueble}</td>
+                            </tr>
+                            <tr>
+                                <th>Quiénes Viven</th>
+                                <td colspan="3">${datos.quienesViven}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="section">
+                        <h2>💰 INFORMACIÓN DEL CRÉDITO</h2>
+                        <table>
+                            <tr>
+                                <th>Monto Solicitado</th>
+                                <td colspan="3">Q ${datos.montoSolicitado}</td>
+                            </tr>
+                            <tr>
+                                <th>Destino del Crédito</th>
+                                <td colspan="3">${datos.destinoCredito}${datos.otroDestino ? ' - ' + datos.otroDestino : ''}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="section">
+                        <h2>🏡 INFORMACIÓN DE LA VIVIENDA</h2>
+                        <table>
+                            <tr>
+                                <th>Tipo de Vivienda</th>
+                                <td>${datos.tipoVivienda}</td>
+                                <th>Condición</th>
+                                <td>${datos.condicionVivienda}</td>
+                            </tr>
+                            <tr>
+                                <th>Número de Habitaciones</th>
+                                <td>${datos.numeroHabitaciones}</td>
+                                <th>Material de Paredes</th>
+                                <td>${datos.materialParedes}</td>
+                            </tr>
+                            <tr>
+                                <th>Material de Techo</th>
+                                <td>${datos.materialTecho}</td>
+                                <th>Material de Piso</th>
+                                <td>${datos.materialPiso}</td>
+                            </tr>
+                            <tr>
+                                <th>Número de Baños</th>
+                                <td>${datos.numeroBanos}</td>
+                                <th>Servicios Disponibles</th>
+                                <td>${datos.serviciosBasicos}</td>
+                            </tr>
+                        </table>
+                        
+                        ${datos.formaIngresoGarita ? `
+                        <h3>Acceso a la Colonia/Residencial</h3>
+                        <table>
+                            <tr>
+                                <th>Forma de Ingreso</th>
+                                <td>${datos.formaIngresoGarita}</td>
+                            </tr>
+                            ${datos.detalleCodigo ? `<tr><th>Código</th><td>${datos.detalleCodigo}</td></tr>` : ''}
+                            ${datos.detalleMarbete ? `<tr><th>Marbete</th><td>${datos.detalleMarbete}</td></tr>` : ''}
+                            ${datos.detalleEntradaLibre ? `<tr><th>Detalles</th><td>${datos.detalleEntradaLibre}</td></tr>` : ''}
+                        </table>
+                        ` : ''}
+                    </div>
+                    
+                    ${datos.contratoArrendamiento ? `
+                    <div class="section">
+                        <h2>👥 INFORMACIÓN DE INQUILINOS / ARRENDAMIENTO</h2>
+                        <table>
+                            <tr>
+                                <th>Contrato de Arrendamiento</th>
+                                <td colspan="3">${datos.contratoArrendamiento}</td>
+                            </tr>
+                            ${datos.aPagarRenta ? `<tr>
+                                <th>A Pagar Renta</th>
+                                <td>${datos.aPagarRenta}</td>
+                                <th>Valor de la Renta</th>
+                                <td>Q ${datos.valorRenta}</td>
+                            </tr>` : ''}
+                            ${datos.tiempoResidenciaInquilino ? `<tr>
+                                <th>Tiempo de Residencia</th>
+                                <td>${datos.tiempoResidenciaInquilino}</td>
+                                <th>Forma de Pago</th>
+                                <td>${datos.formaPago}</td>
+                            </tr>` : ''}
+                            ${datos.comentariosInquilino ? `<tr>
+                                <th>Comentarios</th>
+                                <td colspan="3">${datos.comentariosInquilino}</td>
+                            </tr>` : ''}
+                        </table>
+                    </div>
+                    ` : ''}
+                    
+                    ${datos.nombreNegocio ? `
+                    <div class="section">
+                        <h2>🏢 INFORMACIÓN DEL NEGOCIO</h2>
+                        <table>
+                            <tr>
+                                <th>Nombre del Negocio</th>
+                                <td>${datos.nombreNegocio}</td>
+                                <th>Patente de Comercio</th>
+                                <td>${datos.patenteComercio}</td>
+                            </tr>
+                            <tr>
+                                <th>Giro del Negocio</th>
+                                <td colspan="3">${datos.giroNegocio}</td>
+                            </tr>
+                            <tr>
+                                <th>Dirección del Negocio</th>
+                                <td colspan="3">${datos.direccionNegocio}</td>
+                            </tr>
+                            <tr>
+                                <th>Tipo de Local</th>
+                                <td>${datos.tipoLocal}</td>
+                                <th>Pago Mensual del Local</th>
+                                <td>Q ${datos.pagoMensualLocal}</td>
+                            </tr>
+                            <tr>
+                                <th>Tiempo de Operación</th>
+                                <td>${datos.tiempoOperacion}</td>
+                                <th>Número de Empleados</th>
+                                <td>${datos.numeroEmpleados}</td>
+                            </tr>
+                            <tr>
+                                <th>Ingresos Mensuales</th>
+                                <td>Q ${datos.ingresosMensuales}</td>
+                                <th>Pago Mensual Negocio</th>
+                                <td>Q ${datos.pagoMensualNegocio}</td>
+                            </tr>
+                            <tr>
+                                <th>Estado Físico Interior</th>
+                                <td>${datos.estadoFisicoInterior}</td>
+                                <th>Estado Físico Exterior</th>
+                                <td>${datos.estadoFisicoExterior}</td>
+                            </tr>
+                        </table>
+                        
+                        ${datos.proveedores && datos.proveedores.length > 0 ? `
+                        <h3 style="margin-top: 15px; font-size: 13px; color: #333;">Proveedores Principales</h3>
+                        <table>
+                            <tr style="background: #f5f5f5;">
+                                <th style="width: 70%;">Nombre del Proveedor</th>
+                                <th style="width: 30%;">Monto</th>
+                            </tr>
+                            ${datos.proveedores.map(p => `
+                            <tr>
+                                <td>${p.nombre}</td>
+                                <td style="text-align: right;">Q ${parseFloat(p.monto || 0).toFixed(2)}</td>
+                            </tr>
+                            `).join('')}
+                        </table>
+                        ` : ''}
+                        
+                        ${datos.mobiliario && datos.mobiliario.length > 0 ? `
+                        <h3 style="margin-top: 15px; font-size: 13px; color: #333;">Mobiliario y Equipo</h3>
+                        <table>
+                            <tr style="background: #f5f5f5;">
+                                <th style="width: 70%;">Descripción</th>
+                                <th style="width: 30%;">Valor</th>
+                            </tr>
+                            ${datos.mobiliario.map(m => `
+                            <tr>
+                                <td>${m.descripcion}</td>
+                                <td style="text-align: right;">Q ${parseFloat(m.valor || 0).toFixed(2)}</td>
+                            </tr>
+                            `).join('')}
+                        </table>
+                        ` : ''}
+                        
+                        ${datos.mercaderia && datos.mercaderia.length > 0 ? `
+                        <h3 style="margin-top: 15px; font-size: 13px; color: #333;">Mercadería en Negocio</h3>
+                        <table>
+                            <tr style="background: #f5f5f5;">
+                                <th style="width: 70%;">Descripción</th>
+                                <th style="width: 30%;">Valor</th>
+                            </tr>
+                            ${datos.mercaderia.map(m => `
+                            <tr>
+                                <td>${m.descripcion}</td>
+                                <td style="text-align: right;">Q ${parseFloat(m.valor || 0).toFixed(2)}</td>
+                            </tr>
+                            `).join('')}
+                        </table>
+                        ` : ''}
+                        
+                        ${datos.inventario && datos.inventario.length > 0 ? `
+                        <h3 style="margin-top: 15px; font-size: 13px; color: #333;">Inventario</h3>
+                        <table>
+                            <tr style="background: #f5f5f5;">
+                                <th style="width: 30%;">Descripción</th>
+                                <th style="width: 15%;">Cantidad</th>
+                                <th style="width: 18%;">Compra Q</th>
+                                <th style="width: 18%;">Venta Q</th>
+                                <th style="width: 19%;">Total Venta Q</th>
+                            </tr>
+                            ${datos.inventario.map(inv => `
+                            <tr>
+                                <td>${inv.descripcion}</td>
+                                <td style="text-align: center;">${inv.cantidad}</td>
+                                <td style="text-align: right;">Q ${parseFloat(inv.compra || 0).toFixed(2)}</td>
+                                <td style="text-align: right;">Q ${parseFloat(inv.venta || 0).toFixed(2)}</td>
+                                <td style="text-align: right;">Q ${parseFloat(inv.total || 0).toFixed(2)}</td>
+                            </tr>
+                            `).join('')}
+                        </table>
+                        ` : ''}
+                        
+                        ${datos.costoAgua || datos.costoLuz || datos.costoAlquiler || datos.costoTelefono || datos.costoBasura ? `
+                        <h3 style="margin-top: 15px; font-size: 13px; color: #333;">Costos Fijos</h3>
+                        <table>
+                            <tr>
+                                <th>Agua</th>
+                                <td>Q ${parseFloat(datos.costoAgua || 0).toFixed(2)}</td>
+                                <th>Luz</th>
+                                <td>Q ${parseFloat(datos.costoLuz || 0).toFixed(2)}</td>
+                            </tr>
+                            <tr>
+                                <th>Alquiler</th>
+                                <td>Q ${parseFloat(datos.costoAlquiler || 0).toFixed(2)}</td>
+                                <th>Teléfono</th>
+                                <td>Q ${parseFloat(datos.costoTelefono || 0).toFixed(2)}</td>
+                            </tr>
+                            <tr>
+                                <th>Basura</th>
+                                <td>Q ${parseFloat(datos.costoBasura || 0).toFixed(2)}</td>
+                                <th style="background: #fff3cd;"><strong>Total Costos Fijos</strong></th>
+                                <td style="background: #fff3cd;"><strong>Q ${parseFloat(datos.totalCostosFijos || 0).toFixed(2)}</strong></td>
+                            </tr>
+                        </table>
+                        ` : ''}
+                        
+                        ${datos.otrosGastos && datos.otrosGastos.length > 0 ? `
+                        <h3 style="margin-top: 15px; font-size: 13px; color: #333;">Otros Gastos</h3>
+                        <table>
+                            <tr style="background: #f5f5f5;">
+                                <th style="width: 70%;">Descripción</th>
+                                <th style="width: 30%;">Monto</th>
+                            </tr>
+                            ${datos.otrosGastos.map(g => `
+                            <tr>
+                                <td>${g.descripcion}</td>
+                                <td style="text-align: right;">Q ${parseFloat(g.monto || 0).toFixed(2)}</td>
+                            </tr>
+                            `).join('')}
+                        </table>
+                        ` : ''}
+                        
+                        ${datos.totalVentasMes || datos.costoTotalMes || datos.utilidadNeta ? `
+                        <h3 style="margin-top: 15px; font-size: 13px; color: #333;">📊 Resumen Financiero</h3>
+                        <table>
+                            <tr style="background: #e3f2fd;">
+                                <th style="width: 70%;">Total Ventas en el Mes</th>
+                                <td style="width: 30%; text-align: right; font-weight: bold;">Q ${parseFloat(datos.totalVentasMes || 0).toFixed(2)}</td>
+                            </tr>
+                            <tr style="background: #ffebee;">
+                                <th>Costo Total en el Mes</th>
+                                <td style="text-align: right; font-weight: bold;">Q ${parseFloat(datos.costoTotalMes || 0).toFixed(2)}</td>
+                            </tr>
+                            <tr style="background: #c8e6c9;">
+                                <th style="font-size: 14px;">💰 <strong>Utilidad Neta del Negocio</strong></th>
+                                <td style="text-align: right; font-size: 14px; font-weight: bold; color: #2e7d32;">Q ${parseFloat(datos.utilidadNeta || 0).toFixed(2)}</td>
+                            </tr>
+                        </table>
+                        ` : ''}
+                    </div>
+                    ` : ''}
+                    
+                    ${datos.nombreEmpresa ? `
+                    <div class="section">
+                        <h2>💼 RELACIÓN DE DEPENDENCIA / EMPLEO</h2>
+                        <table>
+                            <tr>
+                                <th>Nombre de la Empresa</th>
+                                <td colspan="3">${datos.nombreEmpresa}</td>
+                            </tr>
+                            <tr>
+                                <th>Dirección de la Empresa</th>
+                                <td colspan="3">${datos.direccionEmpresa}</td>
+                            </tr>
+                            <tr>
+                                <th>Afiliado al IGSS</th>
+                                <td>${datos.igss}</td>
+                                <th>Teléfono Empresa</th>
+                                <td>${datos.telefonoEmpresa}</td>
+                            </tr>
+                            <tr>
+                                <th>Puesto de Trabajo</th>
+                                <td>${datos.puestoTrabajo}</td>
+                                <th>Salario</th>
+                                <td>Q ${datos.salario}</td>
+                            </tr>
+                            <tr>
+                                <th>Fecha de Ingreso</th>
+                                <td colspan="3">${datos.fechaIngreso}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    ` : ''}
+                    
+                    
+                    ${datos.observacionesGenerales || datos.croquisViviendaObservaciones || datos.verificador ? `
+                    <div class="section">
+                        <h2>📝 VERIFICACIÓN Y OBSERVACIONES</h2>
+                        <table>
+                            ${datos.verificador ? `<tr>
+                                <th>Verificador</th>
+                                <td colspan="3">${datos.verificador}</td>
+                            </tr>` : ''}
+                            ${datos.observacionesGenerales ? `<tr>
+                                <th>Observaciones Generales</th>
+                                <td colspan="3">${datos.observacionesGenerales}</td>
+                            </tr>` : ''}
+                            ${datos.croquisViviendaObservaciones ? `<tr>
+                                <th>Observaciones del Croquis</th>
+                                <td colspan="3">${datos.croquisViviendaObservaciones}</td>
+                            </tr>` : ''}
+                        </table>
+                    </div>
+                    ` : ''}
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                        <div>
+                            ${croquisViviendaHTML}
+                        </div>
+                        <div>
+                            ${croquisUbicacionHTML}
+                        </div>
+                    </div>
+                    
+                    ${mapaHTML}
+                    
+                    <!-- SECCIÓN DE FIRMAS (en la misma página que el mapa) -->
+                    <div style="margin-top: 20px;">
+                        <h3 style="font-size: 14px; color: #FF6500; margin-bottom: 15px; font-weight: bold;">✍️ Autorizaciones</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div style="text-align: center;">
+                                <p style="margin-bottom: 5px; font-size: 12px; font-weight: bold; color: #333;">Autorización del Cliente</p>
+                                <p style="margin-bottom: 10px; font-size: 10px; color: #666;">
+                                    ${datos.tipoAutorizacion === 'Firma' ? '✍️ Firma' : datos.tipoAutorizacion === 'Huella Dactilar' ? '👆 Huella Dactilar' : datos.tipoAutorizacion === 'No Autorizó' ? '❌ No Autorizó' : 'Firma'}
+                                </p>
+                                ${datos.tipoAutorizacion === 'No Autorizó' ? `
+                                <div style="border: 2px solid #ff5252; padding: 8px; background: #ffebee; min-height: 120px; display: flex; align-items: center; justify-content: center; text-align: center;">
+                                    <div>
+                                        <p style="font-size: 14px; font-weight: bold; color: #d32f2f; margin-bottom: 8px;">❌ NO AUTORIZÓ</p>
+                                        <p style="font-size: 10px; color: #666; margin: 0;">${datos.motivoNoAutorizo || 'Sin motivo especificado'}</p>
+                                    </div>
+                                </div>
+                                ` : signatureImg ? `
+                                <div style="border: 2px solid #ddd; padding: 8px; background: white; min-height: 120px; display: flex; align-items: center; justify-content: center;">
+                                    <img src="${signatureImg}" style="max-width: 100%; max-height: 120px; object-fit: contain;">
+                                </div>
+                                ` : '<div style="border: 2px solid #ddd; padding: 8px; background: white; min-height: 120px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 11px;">Sin autorización</div>'}
+                                <div style="margin-top: 20px; border-top: 2px solid #333; padding-top: 5px; font-size: 11px;">
+                                    <strong>${datos.nombrePropietario || '_________________________'}</strong><br>
+                                    <small style="font-size: 10px;">Nombre del Cliente</small>
+                                </div>
+                            </div>
+                            
+                            <div style="text-align: center;">
+                                <p style="margin-bottom: 10px; font-size: 12px; font-weight: bold; color: #333;">Firma del Verificador</p>
+                                ${verifierSignatureImg ? `
+                                <div style="border: 2px solid #ddd; padding: 8px; background: white; min-height: 120px; display: flex; align-items: center; justify-content: center;">
+                                    <img src="${verifierSignatureImg}" style="max-width: 100%; max-height: 120px; object-fit: contain;">
+                                </div>
+                                ` : '<div style="border: 2px solid #ddd; padding: 8px; background: white; min-height: 120px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 11px;">Sin firma</div>'}
+                                <div style="margin-top: 20px; border-top: 2px solid #333; padding-top: 5px; font-size: 11px;">
+                                    <strong>${datos.verificador || '_________________________'}</strong><br>
+                                    <small style="font-size: 10px;">Nombre del Verificador</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${fotosHTML}
+                    
+                    <!-- CARTA PRESTA EXPRESS EN PÁGINA SEPARADA -->
+                    <div class="carta-container">
+                        <img src="https://live.staticflickr.com/65535/54810012523_d9377c1fc4_b.jpg" 
+                             class="carta-img"
+                             crossorigin="anonymous">
+                        
+                        <!-- Sobreponer NOMBRE DEL PROPIETARIO (posiciones exactas del código original) -->
+                        <div class="texto-sobrepuesto" style="top: 36%; left: 29%;">
+                            ${datos.nombrePropietario || ' '}
+                        </div>
+                        
+                        <!-- Sobreponer CUI/DPI (posiciones exactas del código original) -->
+                        <div class="texto-sobrepuesto" style="top: 38%; left: 49%; font-size: 11px;">
+                            ${datos.cui || ' '}
+                        </div>
+                        
+                        <!-- Sobreponer FECHA (posiciones exactas del código original) -->
+                        <div class="texto-sobrepuesto" style="top: 65%; left: 18%; font-size: 11px;">
+                            ${fechaCorta || ' '}
+                        </div>
+                        
+                        <!-- Sobreponer FIRMA DEL CLIENTE / HUELLA / NO AUTORIZÓ -->
+                        ${datos.tipoAutorizacion === 'No Autorizó' ? `
+                        <div style="position: absolute; top: 70%; left: 12%; width: 180px; text-align: center;">
+                            <div style="font-size: 14px; font-weight: bold; color: #d32f2f; margin-bottom: 5px;">❌ NO AUTORIZÓ</div>
+                            <div style="font-size: 9px; color: #666; line-height: 1.2;">${datos.motivoNoAutorizo || 'Sin motivo'}</div>
+                        </div>
+                        ` : datos.tipoAutorizacion === 'Huella Dactilar' ? `
+                        <div style="position: absolute; top: 65%; left: 12%; width: 180px; text-align: center;">
+                            <div style="font-size: 10px; font-weight: bold; color: #FF6500; margin-bottom: 3px;">👆 HUELLA DACTILAR</div>
+                            ${signatureImg ? `
+                            <div style="width: 180px; height: 80px; border: 2px solid #ddd; background: white; display: flex; align-items: center; justify-content: center;">
+                                <img src="${signatureImg}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                            </div>
+                            ` : ''}
+                        </div>
+                        ` : signatureImg ? `
+                        <div style="position: absolute; top: 70%; left: 15%; width: 150px; height: 70px;">
+                            <img src="${signatureImg}" style="width: 100%; height: 100%; object-fit: contain;">
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    
+                    <div class="no-print" style="position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); text-align: center; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 1000;">
+                        <button onclick="window.print()" style="padding: 15px 35px; background: #FF6500; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-right: 15px; box-shadow: 0 2px 10px rgba(255,101,0,0.3);">
+                            🖨️ Imprimir / Guardar como PDF
+                        </button>
+                        <button onclick="window.close()" style="padding: 15px 35px; background: #666; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; box-shadow: 0 2px 10px rgba(0,0,0,0.2);">
+                            ✖️ Cerrar
+                        </button>
+                    </div>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            console.log('✅ PDF generado exitosamente. Revisa la consola para ver los datos capturados.');
+            
+            printWindow.document.close();
+        }
+
+        // Función original para generar PDF con jsPDF (sin mapa)
         async function generarPDF() {
             // Debug: mostrar información capturada
             console.log('Generando PDF...');
@@ -2928,6 +4573,7 @@
             console.log('Monto:', document.getElementById('montoSolicitado')?.value);
             console.log('Fotos en DOM:', document.querySelectorAll('#photoPreview img').length);
             console.log('Fotos en app:', window.app?.photos?.length || 0);
+            console.log('Mapa GPS:', ubicacionActual ? 'Sí registrado' : 'No disponible');
             
             // Verificar que todos los campos principales tengan valor
             const camposRequeridos = [
@@ -3425,12 +5071,10 @@
             }
             
             // Agregar fotografías si existen
-            const fotos = document.querySelectorAll('#photoPreview img');
-            // También intentar obtener de la instancia de la app si está disponible
             const appInstance = window.app;
-            const fotosApp = (appInstance && appInstance.photos) ? appInstance.photos : [];
+            const fotos = (appInstance && appInstance.photos) ? appInstance.photos : [];
             
-            if (fotos.length > 0 || fotosApp.length > 0) {
+            if (fotos.length > 0) {
                 checkPage(30);
                 doc.setFillColor(240, 240, 240);
                 doc.rect(margin, yPosition - 2, contentWidth, 6, 'F');
@@ -3451,32 +5095,8 @@
                 const photoWidth = (contentWidth - 30) / maxPhotosPerRow;
                 const photoHeight = photoWidth * 0.6;
                 
-                // Procesar fotos del DOM
-                for (let foto of fotos) {
-                    if (photoCount % maxPhotosPerRow === 0 && photoCount > 0) {
-                        yPosition += photoHeight + 5;
-                        xPhoto = margin;
-                        checkPage(photoHeight + 10);
-                    }
-                    
-                    try {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        canvas.width = foto.naturalWidth || foto.width;
-                        canvas.height = foto.naturalHeight || foto.height;
-                        ctx.drawImage(foto, 0, 0);
-                        const imgData = canvas.toDataURL('image/jpeg', 0.7);
-                        
-                        doc.addImage(imgData, 'JPEG', xPhoto, yPosition, photoWidth, photoHeight);
-                        xPhoto += photoWidth + 5;
-                        photoCount++;
-                    } catch (e) {
-                        console.error('Error al procesar imagen del DOM:', e);
-                    }
-                }
-                
                 // Procesar fotos de la app
-                for (let fotoData of fotosApp) {
+                for (let fotoData of fotos) {
                     if (photoCount % maxPhotosPerRow === 0 && photoCount > 0) {
                         yPosition += photoHeight + 5;
                         xPhoto = margin;
@@ -3489,7 +5109,7 @@
                         xPhoto += photoWidth + 5;
                         photoCount++;
                     } catch (e) {
-                        console.error('Error al procesar imagen de la app:', e);
+                        console.error('Error al procesar imagen:', e);
                     }
                 }
                 
@@ -3556,6 +5176,91 @@
                     } catch (e) {
                         console.error('Error al procesar croquis de ubicación:', e);
                     }
+                }
+                
+                // Agregar información de ubicación GPS si está disponible
+                if (ubicacionActual) {
+                    checkPage(100);
+                    doc.setFontSize(9);
+                    doc.setFont(undefined, 'bold');
+                    doc.setTextColor(255, 101, 0);
+                    doc.text('📍 UBICACIÓN GPS', margin, yPosition);
+                    yPosition += 5;
+                    
+                    doc.setFontSize(8);
+                    doc.setFont(undefined, 'normal');
+                    doc.setTextColor(0, 0, 0);
+                    doc.text(`Latitud: ${ubicacionActual.latitud.toFixed(6)}`, margin, yPosition);
+                    doc.text(`Longitud: ${ubicacionActual.longitud.toFixed(6)}`, margin + 60, yPosition);
+                    yPosition += 4;
+                    doc.text(`Precisión: ${ubicacionActual.precision.toFixed(0)} metros`, margin, yPosition);
+                    yPosition += 8;
+                    
+                    // Crear HTML del mapa como en tu otro formulario
+                    const mapaHTML = `
+                        <div style="margin: 20px 0; text-align: center; page-break-inside: avoid;">
+                            <div style="width: 100%; height: 300px; border: 2px solid #FF6500; background-color: #f0f0f0; position: relative;">
+                                <iframe 
+                                    width="100%" 
+                                    height="300" 
+                                    frameborder="0" 
+                                    style="border:0" 
+                                    src="https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${ubicacionActual.latitud},${ubicacionActual.longitud}&zoom=18&maptype=satellite"
+                                    allowfullscreen>
+                                </iframe>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Guardar el HTML del mapa para usar en exportación HTML
+                    ubicacionActual.mapaHTML = mapaHTML;
+                    
+                    // Agregar imagen del mapa
+                    const mapWidth = contentWidth;
+                    const mapHeight = 80;
+                    
+                    if (ubicacionActual.mapaImagen) {
+                        try {
+                            console.log('Agregando imagen del mapa al PDF...');
+                            doc.addImage(ubicacionActual.mapaImagen, 'JPEG', margin, yPosition, mapWidth, mapHeight);
+                            console.log('✅ Mapa agregado al PDF');
+                            yPosition += mapHeight + 5;
+                        } catch (e) {
+                            console.error('Error al agregar imagen del mapa al PDF:', e);
+                            // Intentar con la URL directa si está disponible
+                            if (ubicacionActual.mapaImagenDirecta) {
+                                try {
+                                    doc.addImage(ubicacionActual.mapaImagenDirecta, 'JPEG', margin, yPosition, mapWidth, mapHeight);
+                                    console.log('✅ Mapa agregado desde URL directa');
+                                    yPosition += mapHeight + 5;
+                                } catch (e2) {
+                                    console.error('Error con URL directa:', e2);
+                                    yPosition += 5;
+                                }
+                            } else {
+                                yPosition += 5;
+                            }
+                        }
+                    } else if (ubicacionActual.mapaImagenDirecta) {
+                        // Intentar agregar directamente desde URL
+                        try {
+                            console.log('Intentando agregar mapa desde URL...');
+                            doc.addImage(ubicacionActual.mapaImagenDirecta, 'JPEG', margin, yPosition, mapWidth, mapHeight);
+                            console.log('✅ Mapa agregado desde URL');
+                            yPosition += mapHeight + 5;
+                        } catch (e) {
+                            console.error('Error al agregar mapa desde URL:', e);
+                            yPosition += 5;
+                        }
+                    }
+                    
+                    // Agregar enlace a Google Maps
+                    const googleMapsUrl = `https://www.google.com/maps?q=${ubicacionActual.latitud},${ubicacionActual.longitud}`;
+                    doc.setFontSize(8);
+                    doc.setTextColor(0, 0, 255);
+                    doc.textWithLink('🔗 Ver ubicación en Google Maps', margin, yPosition, { url: googleMapsUrl });
+                    doc.setTextColor(0, 0, 0);
+                    yPosition += 8;
                 }
             }
             
@@ -3940,11 +5645,13 @@
             }, 8000);
         }
         
-        // Hacer la función disponible globalmente
+        // Hacer las funciones disponibles globalmente
         window.generarPDF = generarPDF;
+        window.generarPDFConMapa = generarPDFConMapa;
     </script>
     
     <!-- Librerías para generar PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
 </html>
