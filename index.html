@@ -20,6 +20,103 @@
             --transition: all 0.3s ease;
         }
 
+        /* Estilos para Coopexpress (colores verdes) */
+        body.coopexpress {
+            --orange-primary: #a4c639;
+            --orange-secondary: #8fb82e;
+        }
+
+        /* Menú de selección de empresa */
+        .empresa-selector {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .empresa-selector-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .empresa-selector h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .empresa-selector p {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 40px;
+        }
+
+        .empresa-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .empresa-btn {
+            padding: 20px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .empresa-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .empresa-btn.presta {
+            background: linear-gradient(135deg, #ff6500, #ff7a1a);
+            color: white;
+        }
+
+        .empresa-btn.presta:hover {
+            background: linear-gradient(135deg, #ff7a1a, #ff8c2e);
+        }
+
+        .empresa-btn.coop {
+            background: linear-gradient(135deg, #a4c639, #8fb82e);
+            color: white;
+        }
+
+        .empresa-btn.coop:hover {
+            background: linear-gradient(135deg, #8fb82e, #7fa525);
+        }
+
+        .empresa-btn img {
+            height: 50px;
+            width: auto;
+        }
+
+        .formulario-container {
+            display: none;
+        }
+
+        .formulario-container.active {
+            display: block;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -799,6 +896,24 @@
     </style>
 </head>
 <body>
+    <!-- Menú de selección de empresa -->
+    <div class="empresa-selector" id="empresaSelector">
+        <div class="empresa-selector-content">
+            <h1>Seleccione la Empresa</h1>
+            <p>Elija la empresa para la cual va a realizar la verificación</p>
+            <div class="empresa-buttons">
+                <button class="empresa-btn presta" onclick="seleccionarEmpresa('presta')">
+                    <span>Presta Express</span>
+                </button>
+                <button class="empresa-btn coop" onclick="seleccionarEmpresa('coop')">
+                    <span>Coopexpress</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor del formulario (oculto inicialmente) -->
+    <div class="formulario-container" id="formularioContainer">
     <div class="container">
         <header class="header">
             <h1>📋 Formulario de Visitas</h1>
@@ -927,10 +1042,7 @@
                             <option value="">Seleccione...</option>
                             <option value="Compra">Compra</option>
                             <option value="Herencia">Herencia</option>
-                            <option value="Donación">Donación</option>
-                            <option value="Construcción propia">Construcción propia</option>
-                            <option value="Invasión">Invasión</option>
-                            <option value="Otro">Otro</option>
+                            <option value="Donación - Contrato división voluntaria">Donación - Contrato división voluntaria</option>
                         </select>
                         <div class="error-message">Este campo es obligatorio</div>
                     </div>
@@ -1804,6 +1916,35 @@
     <div class="auto-save" id="autoSave">
         Guardado automáticamente
     </div>
+    </div>
+    <!-- Fin del formulario-container -->
+
+    <script>
+        // Variable global para almacenar la empresa seleccionada
+        let empresaSeleccionada = '';
+
+        // Función para seleccionar la empresa
+        function seleccionarEmpresa(empresa) {
+            empresaSeleccionada = empresa;
+            
+            // Ocultar el selector de empresa
+            document.getElementById('empresaSelector').style.display = 'none';
+            
+            // Mostrar el formulario
+            document.getElementById('formularioContainer').classList.add('active');
+            
+            // Aplicar los colores según la empresa
+            if (empresa === 'coop') {
+                document.body.classList.add('coopexpress');
+                document.querySelector('.header h1').textContent = '📋 Formulario de Visitas - Coopexpress';
+            } else {
+                document.body.classList.remove('coopexpress');
+                document.querySelector('.header h1').textContent = '📋 Formulario de Visitas - Presta Express';
+            }
+            
+            console.log('Empresa seleccionada:', empresa);
+        }
+    </script>
 
     <script>
         function mostrarOtroDestino() {
@@ -3910,12 +4051,13 @@
             console.log(`📸 Fotos encontradas: ${fotos.length}`);
             
             // Preparar HTML de fotos - IMÁGENES COMPLETAS SIN CORTAR
+            const colorPrimario = empresaSeleccionada === 'coop' ? '#a4c639' : '#FF6500';
             let fotosHTML = '';
             if (fotos.length > 0) {
-                fotosHTML = '<div style="margin: 15px 0;"><h3 style="font-size: 13px; color: #FF6500; margin-bottom: 10px; font-weight: bold;">📸 Evidencia Fotográfica</h3><div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">';
+                fotosHTML = `<div style="margin: 15px 0;"><h3 style="font-size: 13px; color: ${colorPrimario}; margin-bottom: 10px; font-weight: bold;">📸 Evidencia Fotográfica</h3><div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">`;
                 fotos.slice(0, 9).forEach(foto => {
                     const imgSrc = foto.data || foto;
-                    fotosHTML += `<div style="border: 2px solid #FF6500; border-radius: 5px; padding: 3px; background: white;"><img src="${imgSrc}" style="width: 100%; height: auto; display: block; object-fit: contain;"></div>`;
+                    fotosHTML += `<div style="border: 2px solid ${colorPrimario}; border-radius: 5px; padding: 3px; background: white;"><img src="${imgSrc}" style="width: 100%; height: auto; display: block; object-fit: contain;"></div>`;
                 });
                 fotosHTML += '</div></div>';
             }
@@ -3926,17 +4068,19 @@
             
             if (croquisViviendaImg) {
                 croquisViviendaHTML = `<div style="margin: 10px 0;">
-                    <h3 style="font-size: 13px; color: #FF6500; margin-bottom: 8px; font-weight: bold;">🗺️ Croquis de Vivienda</h3>
-                    <div style="border: 2px solid #FF6500; border-radius: 5px; padding: 5px; background: white;">
+                    <h3 style="font-size: 13px; color: ${colorPrimario}; margin-bottom: 8px; font-weight: bold;">🗺️ Croquis de Vivienda</h3>
+                    <div style="border: 2px solid ${colorPrimario}; border-radius: 5px; padding: 5px; background: white;">
                         <img src="${croquisViviendaImg}" style="width: 100%; height: auto; display: block; object-fit: contain;">
                     </div>
                 </div>`;
             }
             
+
+
             if (croquisUbicacionImg) {
                 croquisUbicacionHTML = `<div style="margin: 10px 0;">
-                    <h3 style="font-size: 13px; color: #FF6500; margin-bottom: 8px; font-weight: bold;">🗺️ Croquis de Ubicación</h3>
-                    <div style="border: 2px solid #FF6500; border-radius: 5px; padding: 5px; background: white;">
+                    <h3 style="font-size: 13px; color: ${colorPrimario}; margin-bottom: 8px; font-weight: bold;">🗺️ Croquis de Ubicación</h3>
+                    <div style="border: 2px solid ${colorPrimario}; border-radius: 5px; padding: 5px; background: white;">
                         <img src="${croquisUbicacionImg}" style="width: 100%; height: auto; display: block; object-fit: contain;">
                     </div>
                 </div>`;
@@ -3947,8 +4091,8 @@
             if (ubicacionActual) {
                 mapaHTML = `
                     <div style="margin: 10px 0;">
-                        <h3 style="font-size: 11px; color: #FF6500; margin-bottom: 5px;">📍 Ubicación GPS</h3>
-                        <div style="border: 2px solid #FF6500; border-radius: 5px; overflow: hidden;">
+                        <h3 style="font-size: 11px; color: ${colorPrimario}; margin-bottom: 5px;">📍 Ubicación GPS</h3>
+                        <div style="border: 2px solid ${colorPrimario}; border-radius: 5px; overflow: hidden;">
                             <iframe 
                                 width="100%" 
                                 height="250" 
@@ -3962,6 +4106,17 @@
                             <strong>Coordenadas:</strong> Lat: ${ubicacionActual.latitud.toFixed(6)}, Lng: ${ubicacionActual.longitud.toFixed(6)} 
                             (Precisión: ${ubicacionActual.precision.toFixed(0)}m)
                         </p>
+                        <div style="text-align: center; margin-top: 8px; page-break-inside: avoid;">
+                            <a href="https://www.google.com/maps?q=${ubicacionActual.latitud},${ubicacionActual.longitud}" 
+                               target="_blank" 
+                               rel="noopener noreferrer"
+                               style="display: inline-block; padding: 8px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 20px; font-size: 11px; font-weight: bold; box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);">
+                                🗺️ Abrir en Google Maps
+                            </a>
+                            <p style="font-size: 7px; color: #666; margin-top: 4px;">
+                                Click en el botón o copia: <span style="color: #667eea;">https://www.google.com/maps?q=${ubicacionActual.latitud},${ubicacionActual.longitud}</span>
+                            </p>
+                        </div>
                     </div>
                 `;
             }
@@ -4021,13 +4176,13 @@
                             page-break-inside: avoid;
                         }
                         h2 { 
-                            color: #FF6500; 
+                            color: ${empresaSeleccionada === 'coop' ? '#a4c639' : '#FF6500'}; 
                             font-size: 12px;
                             font-weight: bold;
-                            border-left: 4px solid #FF6500;
+                            border-left: 4px solid ${empresaSeleccionada === 'coop' ? '#a4c639' : '#FF6500'};
                             padding-left: 8px;
                             margin: 8px 0 6px 0;
-                            background: #FFF5E6;
+                            background: ${empresaSeleccionada === 'coop' ? '#f0f8e6' : '#FFF5E6'};
                             padding: 5px 8px;
                         }
                         table { 
@@ -4043,9 +4198,9 @@
                             vertical-align: top; 
                         }
                         th { 
-                            background-color: #FFF5E6; 
+                            background-color: ${empresaSeleccionada === 'coop' ? '#f0f8e6' : '#FFF5E6'}; 
                             font-weight: bold;
-                            color: #FF6500;
+                            color: ${empresaSeleccionada === 'coop' ? '#a4c639' : '#FF6500'};
                             width: 30%;
                         }
                         td {
@@ -4054,13 +4209,18 @@
                         .carta-container {
                             page-break-before: always;
                             position: relative;
-                            width: 100%;
-                            min-height: 100vh;
+                            width: 794px;
+                            height: 1123px;
+                            margin: 0 auto;
+                            overflow: hidden;
                         }
                         .carta-img {
-                            width: 100%;
-                            height: auto;
+                            width: 794px;
+                            height: 1123px;
                             display: block;
+                            position: absolute;
+                            top: 0;
+                            left: 0;
                         }
                         .texto-sobrepuesto {
                             position: absolute;
@@ -4068,6 +4228,7 @@
                             font-weight: bold;
                             color: black;
                             font-family: Arial, sans-serif;
+                            white-space: nowrap;
                         }
                         @media print {
                             body { 
@@ -4087,6 +4248,7 @@
                     <div class="header">
                         <h1>📋 FORMULARIO DE VERIFICACIÓN</h1>
                         <div class="fecha-verificacion">
+                            <strong>Empresa:</strong> ${empresaSeleccionada === 'coop' ? 'Coopexpress' : 'Presta Express'} | 
                             <strong>Fecha:</strong> ${fecha} | 
                             <strong>Tipo:</strong> ${datos.tipoVerificacion || 'No especificado'}
                         </div>
@@ -4459,7 +4621,7 @@
                     
                     <!-- SECCIÓN DE FIRMAS (en la misma página que el mapa) -->
                     <div style="margin-top: 20px;">
-                        <h3 style="font-size: 14px; color: #FF6500; margin-bottom: 15px; font-weight: bold;">✍️ Autorizaciones</h3>
+                        <h3 style="font-size: 14px; color: ${colorPrimario}; margin-bottom: 15px; font-weight: bold;">✍️ Autorizaciones</h3>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                             <div style="text-align: center;">
                                 <p style="margin-bottom: 5px; font-size: 12px; font-weight: bold; color: #333;">Autorización del Cliente</p>
@@ -4485,7 +4647,10 @@
                             </div>
                             
                             <div style="text-align: center;">
-                                <p style="margin-bottom: 10px; font-size: 12px; font-weight: bold; color: #333;">Firma del Verificador</p>
+                                <p style="margin-bottom: 5px; font-size: 12px; font-weight: bold; color: #333;">Firma del Verificador</p>
+                                <p style="margin-bottom: 10px; font-size: 10px; color: #666;">
+                                    ✍️ Firma
+                                </p>
                                 ${verifierSignatureImg ? `
                                 <div style="border: 2px solid #ddd; padding: 8px; background: white; min-height: 120px; display: flex; align-items: center; justify-content: center;">
                                     <img src="${verifierSignatureImg}" style="max-width: 100%; max-height: 120px; object-fit: contain;">
@@ -4502,35 +4667,36 @@
                     ${fotosHTML}
                     
                     <!-- CARTA PRESTA EXPRESS EN PÁGINA SEPARADA -->
-                    <div class="carta-container">
-                        <img src="https://live.staticflickr.com/65535/54810012523_d9377c1fc4_b.jpg" 
+                    <div class="carta-container" style="position: relative; width: 794px; height: 1123px; margin: 0 auto; page-break-before: always;">
+                        <img src="https://live.staticflickr.com/65535/54854215087_71490738ce_b.jpg" 
                              class="carta-img"
+                             style="width: 794px; height: 1123px; display: block; position: absolute; top: 0; left: 0;"
                              crossorigin="anonymous">
                         
-                        <!-- Sobreponer NOMBRE DEL PROPIETARIO (posiciones exactas del código original) -->
-                        <div class="texto-sobrepuesto" style="top: 36%; left: 29%;">
+                        <!-- Sobreponer NOMBRE DEL PROPIETARIO -->
+                        <div class="texto-sobrepuesto" style="position: absolute; top: 399px; left: 278px; font-size: 12px; font-weight: bold;">
                             ${datos.nombrePropietario || ' '}
                         </div>
                         
-                        <!-- Sobreponer CUI/DPI (posiciones exactas del código original) -->
-                        <div class="texto-sobrepuesto" style="top: 38%; left: 49%; font-size: 11px;">
+                        <!-- Sobreponer CUI/DPI -->
+                        <div class="texto-sobrepuesto" style="position: absolute; top: 421px; left: 413px; font-size: 11px; font-weight: bold;">
                             ${datos.cui || ' '}
                         </div>
                         
-                        <!-- Sobreponer FECHA (posiciones exactas del código original) -->
-                        <div class="texto-sobrepuesto" style="top: 65%; left: 18%; font-size: 11px;">
+                        <!-- Sobreponer FECHA -->
+                        <div class="texto-sobrepuesto" style="position: absolute; top: 741px; left: 222px; font-size: 11px; font-weight: bold;">
                             ${fechaCorta || ' '}
                         </div>
                         
                         <!-- Sobreponer FIRMA DEL CLIENTE / HUELLA / NO AUTORIZÓ -->
                         ${datos.tipoAutorizacion === 'No Autorizó' ? `
-                        <div style="position: absolute; top: 70%; left: 12%; width: 180px; text-align: center;">
+                        <div style="position: absolute; top: 820px; left: 159px; width: 180px; text-align: center;">
                             <div style="font-size: 14px; font-weight: bold; color: #d32f2f; margin-bottom: 5px;">❌ NO AUTORIZÓ</div>
                             <div style="font-size: 9px; color: #666; line-height: 1.2;">${datos.motivoNoAutorizo || 'Sin motivo'}</div>
                         </div>
                         ` : datos.tipoAutorizacion === 'Huella Dactilar' ? `
-                        <div style="position: absolute; top: 65%; left: 12%; width: 180px; text-align: center;">
-                            <div style="font-size: 10px; font-weight: bold; color: #FF6500; margin-bottom: 3px;">👆 HUELLA DACTILAR</div>
+                        <div style="position: absolute; top: 820px; left: 198px; width: 180px; text-align: center;">
+                            <div style="font-size: 10px; font-weight: bold; color: ${colorPrimario}; margin-bottom: 3px;">👆 HUELLA DACTILAR</div>
                             ${signatureImg ? `
                             <div style="width: 180px; height: 80px; border: 2px solid #ddd; background: white; display: flex; align-items: center; justify-content: center;">
                                 <img src="${signatureImg}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
@@ -4538,7 +4704,7 @@
                             ` : ''}
                         </div>
                         ` : signatureImg ? `
-                        <div style="position: absolute; top: 70%; left: 15%; width: 150px; height: 70px;">
+                        <div style="position: absolute; top: 820px; left: 194px; width: 150px; height: 70px;">
                             <img src="${signatureImg}" style="width: 100%; height: 100%; object-fit: contain;">
                         </div>
                         ` : ''}
